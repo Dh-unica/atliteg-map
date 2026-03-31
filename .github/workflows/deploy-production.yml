@@ -92,7 +92,55 @@ jobs:
             ls -lh data/logo/
           fi
 
-      # Step 4: Build dell'applicazione
+      # Step 3b: Preprocessing dati e popolamento server/data/
+      - name: 📊 Preprocessing dati lemmi
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📊 STEP 2b: Preprocessing dati e popolamento server/data/"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          cd ${{ secrets.DEPLOY_PATH }}/lemmario-dashboard
+
+          # Installa dipendenze se necessario
+          if [ ! -d "node_modules" ]; then
+            echo "📦 Installazione dipendenze Node.js..."
+            npm ci --quiet
+          fi
+
+          # Esegui preprocessing (cerca CSV in posizioni multiple, gestisce assenza del CSV)
+          echo "🔄 Esecuzione preprocessing..."
+          node scripts/preprocess-data.js
+          PREPROCESS_EXIT=$?
+          if [ $PREPROCESS_EXIT -ne 0 ]; then
+            echo "❌ Preprocessing fallito (exit code $PREPROCESS_EXIT)"
+            exit $PREPROCESS_EXIT
+          fi
+
+          # Verifica e copia lemmi.json in server/data/ se disponibile e non già copiato
+          echo ""
+          echo "🔍 Verifica disponibilità lemmi.json in server/data/..."
+
+          if [ -f "server/data/lemmi.json" ]; then
+            echo "✅ lemmi.json presente in server/data/"
+          elif [ -f "public/data/lemmi.json" ]; then
+            mkdir -p server/data
+            cp public/data/lemmi.json server/data/lemmi.json
+            echo "✅ lemmi.json copiato in server/data/ da public/data/"
+          elif [ -f "../data/lemmi.json" ]; then
+            mkdir -p server/data
+            cp ../data/lemmi.json server/data/lemmi.json
+            echo "✅ lemmi.json copiato in server/data/ da data/"
+          else
+            echo "⚠️  lemmi.json non disponibile in nessuna posizione."
+            echo "   Il backend avvierà in modalità degradata."
+            echo "   Caricare il CSV tramite l'interfaccia admin dopo il deploy."
+          fi
+
+          echo ""
+          echo "📁 Contenuto server/data/:"
+          ls -lh server/data/ || echo "(directory vuota o non esistente)"
+
+
       - name: 🏗️ Build dell'applicazione
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
