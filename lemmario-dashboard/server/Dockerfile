@@ -18,8 +18,11 @@ COPY . .
 RUN mkdir -p data uploads logs && \
     chmod 755 data uploads logs
 
+# Rendi eseguibile l'entrypoint
+RUN chmod +x entrypoint.sh
+
 # Esponi porta 3001
 EXPOSE 3001
 
-# Avvia server
-CMD ["node", "index.js"]
+# Avvia tramite entrypoint che controlla disponibilità dati
+CMD ["./entrypoint.sh"]
