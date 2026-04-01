@@ -1,0 +1,63 @@
+# Docker Compose per deployment con basePath /atliteg
+# Usato per servire l'app su linguistica.dh.unica.it/atliteg
+#
+# Usage:
+#   docker compose -f docker-compose.subpath.yml up -d
+
+services:
+  backend:
+    build:
+      context: ./lemmario-dashboard/server
+      dockerfile: Dockerfile
+    container_name: atliteg-backend-subpath
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - FRONTEND_API_KEYS=${FRONTEND_API_KEYS}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH}
+      - JWT_SECRET=${JWT_SECRET}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+    volumes:
+      - ./lemmario-dashboard/server/data:/app/data
+      - ./lemmario-dashboard/server/uploads:/app/uploads
+      - ./lemmario-dashboard/server/logs:/app/logs
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - atliteg-network-subpath
+
+  lemmario-dashboard-subpath:
+    build:
+      context: ./lemmario-dashboard
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+        - NEXT_PUBLIC_API_KEY=${NEXT_PUBLIC_API_KEY}
+        - NEXT_PUBLIC_BASE_PATH=/atliteg
+        - NEXT_PUBLIC_SITE_URL=https://linguistica.dh.unica.it/atliteg
+    container_name: atliteg-lemmario-dashboard-subpath
+    ports:
+      - "9001:9000"  # Porta diversa dal container principale
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9000/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - atliteg-network-subpath
+
+networks:
+  atliteg-network-subpath:
+    driver: bridge

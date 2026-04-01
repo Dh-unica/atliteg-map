@@ -126,23 +126,36 @@ server {
     ssl_certificate /path/to/linguistica.dh.unica.it.crt;
     ssl_certificate_key /path/to/linguistica.dh.unica.it.key;
 
+    # SOLUZIONE SEMPLIFICATA: Redirect a dominio primario
+    # Questa è la soluzione più semplice e affidabile
     location /atliteg {
-        rewrite ^/atliteg(/.*)$ $1 break;
-        proxy_pass http://localhost:9000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location /atliteg/ {
-        proxy_pass http://localhost:9000/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        return 301 https://atlante.atliteg.org$request_uri;
     }
 }
+
+# ALTERNATIVA: Servire l'app anche su linguistica.dh.unica.it/atliteg
+# Richiede build separata con basePath=/atliteg
+# Commentare il blocco sopra e decommentare questo:
+#
+# server {
+#     listen 443 ssl http2;
+#     server_name linguistica.dh.unica.it;
+#
+#     ssl_certificate /path/to/linguistica.dh.unica.it.crt;
+#     ssl_certificate_key /path/to/linguistica.dh.unica.it.key;
+#
+#     location /atliteg/ {
+#         proxy_pass http://localhost:9001/;  # Porta diversa per build con basePath
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#     }
+#
+#     location /atliteg {
+#         return 301 $scheme://$host$request_uri/;
+#     }
+# }
 ```
 
 **Nota**: Per `linguistica.dh.unica.it/atliteg`, il reverse proxy rimuove il prefisso `/atliteg` prima di inoltrare al container Docker.

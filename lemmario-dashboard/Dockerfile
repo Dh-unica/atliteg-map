@@ -15,12 +15,17 @@ COPY . .
 # Accept build arguments for Next.js environment variables
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_API_KEY
+ARG NEXT_PUBLIC_BASE_PATH
+ARG NEXT_PUBLIC_SITE_URL
 
 # Build Next.js (static export)
 # NEXT_PUBLIC_API_URL= (vuoto) fa sì che le chiamate API siano relative (es: /api/lemmi)
 # Nginx le proxierà poi al backend:3001 (vedi nginx.conf)
+# NEXT_PUBLIC_BASE_PATH=/atliteg per deployment su subpath
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-}
 ENV NEXT_PUBLIC_API_KEY=${NEXT_PUBLIC_API_KEY:-default_dev_key}
+ENV NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH:-}
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-https://atlante.atliteg.org}
 RUN npm run build
 
 # ================================

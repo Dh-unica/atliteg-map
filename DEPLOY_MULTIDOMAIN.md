@@ -345,9 +345,24 @@ Il workflow GitHub Actions è stato aggiornato per supportare il multi-dominio. 
 Per la guida completa sulla configurazione dei secrets, consulta:
 [GitHub Actions Secrets Guide](docs/guides/github-actions-secrets.md)
 
+## 🚨 Problema: Pagina Bianca su linguistica.dh.unica.it/atliteg
+
+Se dopo il deploy vedi una **pagina bianca** su `https://linguistica.dh.unica.it/atliteg`, consulta:
+
+**[DEPLOY_SUBPATH_SOLUTION.md](DEPLOY_SUBPATH_SOLUTION.md)** - Guida completa alle soluzioni
+
+**Quick Fix (Redirect)**:
+```nginx
+# Configurazione Nginx su linguistica.dh.unica.it
+location /atliteg {
+    return 301 https://atlante.atliteg.org$request_uri;
+}
+```
+
 ## 📚 Documentazione Completa
 
 Per informazioni dettagliate, consulta:
+- [Soluzione Pagina Bianca (SubPath)](DEPLOY_SUBPATH_SOLUTION.md) ⭐
 - [Multi-Domain Deployment Guide](docs/guides/multi-domain-deployment.md)
 - [GitHub Actions Secrets](docs/guides/github-actions-secrets.md)
 - [CLAUDE.md](CLAUDE.md#multi-domain-support)
