@@ -1,4 +1,5 @@
 const express = require('express');
+const compression = require('compression');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
@@ -11,6 +12,7 @@ const adminRoutes = require('./routes/admin');
 const app = express();
 
 // Middleware globali
+app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
