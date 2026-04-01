@@ -68,7 +68,7 @@ export default function AdminUploadPage() {
         setToken(data.token);
         setPassword(''); // Clear password for security
       } else {
-        setLoginError(data.message || 'Login fallito');
+        setLoginError(data.error || data.message || 'Login fallito');
       }
     } catch (error) {
       setLoginError('Errore di connessione al server');

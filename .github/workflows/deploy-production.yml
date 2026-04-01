@@ -92,49 +92,44 @@ jobs:
             ls -lh data/logo/
           fi
 
-      # Step 3b: Preprocessing dati e popolamento server/data/
-      - name: 📊 Preprocessing dati lemmi
+      # Step 3b: Verifica e popolamento server/data/
+      - name: 📊 Verifica dati lemmi
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "📊 STEP 2b: Preprocessing dati e popolamento server/data/"
+          echo "📊 STEP 2b: Verifica e popolamento server/data/"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
           cd ${{ secrets.DEPLOY_PATH }}/lemmario-dashboard
 
-          # Installa dipendenze se necessario
-          if [ ! -d "node_modules" ]; then
-            echo "📦 Installazione dipendenze Node.js..."
-            npm ci --quiet
-          fi
+          mkdir -p server/data
 
-          # Esegui preprocessing (cerca CSV in posizioni multiple, gestisce assenza del CSV)
-          echo "🔄 Esecuzione preprocessing..."
-          node scripts/preprocess-data.js
-          PREPROCESS_EXIT=$?
-          if [ $PREPROCESS_EXIT -ne 0 ]; then
-            echo "❌ Preprocessing fallito (exit code $PREPROCESS_EXIT)"
-            exit $PREPROCESS_EXIT
-          fi
-
-          # Verifica e copia lemmi.json in server/data/ se disponibile e non già copiato
-          echo ""
-          echo "🔍 Verifica disponibilità lemmi.json in server/data/..."
-
-          if [ -f "server/data/lemmi.json" ]; then
-            echo "✅ lemmi.json presente in server/data/"
-          elif [ -f "public/data/lemmi.json" ]; then
-            mkdir -p server/data
-            cp public/data/lemmi.json server/data/lemmi.json
-            echo "✅ lemmi.json copiato in server/data/ da public/data/"
-          elif [ -f "../data/lemmi.json" ]; then
-            mkdir -p server/data
+          # Verifica se lemmi.json è già disponibile in server/data/
+          if [ -f "server/data/lemmi.json" ] && [ -s "server/data/lemmi.json" ]; then
+            echo "✅ lemmi.json presente in server/data/ ($(wc -c < server/data/lemmi.json) bytes)"
+          elif [ -f "../data/lemmi.json" ] && [ -s "../data/lemmi.json" ]; then
             cp ../data/lemmi.json server/data/lemmi.json
             echo "✅ lemmi.json copiato in server/data/ da data/"
+          elif [ -f "public/data/lemmi.json" ] && [ -s "public/data/lemmi.json" ]; then
+            cp public/data/lemmi.json server/data/lemmi.json
+            echo "✅ lemmi.json copiato in server/data/ da public/data/"
           else
             echo "⚠️  lemmi.json non disponibile in nessuna posizione."
-            echo "   Il backend avvierà in modalità degradata."
-            echo "   Caricare il CSV tramite l'interfaccia admin dopo il deploy."
+            echo "   Il backend tenterà il recupero automatico da backup CSV all'avvio."
+            echo "   In alternativa, caricare il CSV tramite l'interfaccia admin dopo il deploy."
           fi
+
+          # Copia anche geojson.json e limits se necessario
+          for f in geojson.json limits_IT_regions.geojson; do
+            if [ ! -f "server/data/$f" ] || [ ! -s "server/data/$f" ]; then
+              if [ -f "../data/$f" ]; then
+                cp "../data/$f" "server/data/$f"
+                echo "✅ $f copiato in server/data/"
+              elif [ -f "public/data/$f" ]; then
+                cp "public/data/$f" "server/data/$f"
+                echo "✅ $f copiato in server/data/ da public/data/"
+              fi
+            fi
+          done
 
           echo ""
           echo "📁 Contenuto server/data/:"
