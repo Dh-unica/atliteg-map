@@ -37,6 +37,10 @@ services:
     container_name: atliteg-lemmario-dashboard
     ports:
       - "9000:9000"
+    volumes:
+      - ./lemmario-dashboard/server/data/geojson.json:/usr/share/nginx/html/data/geojson.json:ro
+      - ./lemmario-dashboard/server/data/limits_IT_regions.geojson:/usr/share/nginx/html/data/limits_IT_regions.geojson:ro
+      - ./lemmario-dashboard/server/data/lemmi.json:/usr/share/nginx/html/data/lemmi.json:ro
     depends_on:
       backend:
         condition: service_healthy
