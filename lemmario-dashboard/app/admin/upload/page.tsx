@@ -7,6 +7,7 @@ interface LoginResponse {
   success: boolean;
   token?: string;
   message?: string;
+  error?: string;
 }
 
 interface UploadResponse {
