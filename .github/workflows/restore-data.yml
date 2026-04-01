@@ -1,0 +1,128 @@
+name: Restore Data from CSV
+
+on:
+  workflow_dispatch:
+    inputs:
+      csv_source:
+        description: 'CSV source path on server (relative to DEPLOY_PATH)'
+        required: false
+        default: 'data/Lemmi_forme_atliteg_updated.csv'
+
+permissions:
+  contents: read
+
+jobs:
+  restore:
+    name: Process CSV and restore data
+    runs-on: self-hosted
+    environment:
+      name: production
+
+    steps:
+      - name: 📋 Verifica file sorgente
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📋 Verifica disponibilità CSV"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          cd ${{ secrets.DEPLOY_PATH }}
+          CSV_PATH="${{ github.event.inputs.csv_source }}"
+
+          if [ ! -f "$CSV_PATH" ]; then
+            echo "❌ File non trovato: $CSV_PATH"
+            echo "📁 File disponibili in data/:"
+            ls -lh data/*.csv 2>/dev/null || echo "  Nessun CSV in data/"
+            echo ""
+            echo "📁 File backup in server/uploads/backup/:"
+            ls -lh lemmario-dashboard/server/uploads/backup/*.csv 2>/dev/null || echo "  Nessun CSV in backup/"
+            exit 1
+          fi
+
+          echo "✅ CSV trovato: $CSV_PATH ($(wc -c < "$CSV_PATH") bytes)"
+          echo "   Righe: $(wc -l < "$CSV_PATH")"
+          head -1 "$CSV_PATH"
+
+      - name: 🔄 Processa CSV nel backend container
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🔄 Processing CSV via Docker"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          cd ${{ secrets.DEPLOY_PATH }}
+          CSV_PATH="${{ github.event.inputs.csv_source }}"
+
+          # Copia CSV nella directory uploads del backend (volume mount)
+          TEMP_NAME="restore_$(date +%s).csv"
+          cp "$CSV_PATH" "lemmario-dashboard/server/uploads/$TEMP_NAME"
+          echo "✅ CSV copiato in server/uploads/$TEMP_NAME"
+
+          # Processa via docker exec
+          echo "🔄 Esecuzione processamento nel container backend..."
+
+          # Export env vars per docker compose
+          export FRONTEND_API_KEYS="${{ secrets.FRONTEND_API_KEYS }}"
+          export NEXT_PUBLIC_API_KEY="${{ secrets.NEXT_PUBLIC_API_KEY }}"
+          export ADMIN_USERNAME="${{ secrets.ADMIN_USERNAME }}"
+          export ADMIN_PASSWORD="${{ secrets.ADMIN_PASSWORD }}"
+          export ADMIN_PASSWORD_HASH=""
+          export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+          export ALLOWED_ORIGINS="${{ secrets.ALLOWED_ORIGINS }}"
+          export NEXT_PUBLIC_API_URL=""
+          export NEXT_PUBLIC_SITE_URL="${{ secrets.NEXT_PUBLIC_SITE_URL }}"
+
+          docker compose exec -T backend node -e "
+            const csvProcessor = require('./services/csvProcessor');
+            const jobId = 'restore-' + Date.now();
+            csvProcessor.processCSV('/app/uploads/$TEMP_NAME', jobId)
+              .then(result => {
+                console.log('✅ Processamento completato');
+                console.log('   Record: ' + result.recordCount);
+                console.log('   Durata: ' + result.duration);
+                console.log('   Output: ' + JSON.stringify(result.output));
+              })
+              .catch(err => {
+                console.error('❌ Errore:', err.message);
+                process.exit(1);
+              });
+          "
+
+      - name: 🔍 Verifica risultato
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🔍 Verifica dati ripristinati"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          cd ${{ secrets.DEPLOY_PATH }}
+
+          # Export env vars per docker compose
+          export FRONTEND_API_KEYS="${{ secrets.FRONTEND_API_KEYS }}"
+          export NEXT_PUBLIC_API_KEY="${{ secrets.NEXT_PUBLIC_API_KEY }}"
+          export ADMIN_USERNAME="${{ secrets.ADMIN_USERNAME }}"
+          export ADMIN_PASSWORD="${{ secrets.ADMIN_PASSWORD }}"
+          export ADMIN_PASSWORD_HASH=""
+          export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+          export ALLOWED_ORIGINS="${{ secrets.ALLOWED_ORIGINS }}"
+          export NEXT_PUBLIC_API_URL=""
+          export NEXT_PUBLIC_SITE_URL="${{ secrets.NEXT_PUBLIC_SITE_URL }}"
+
+          echo "📊 Contenuto server/data/:"
+          ls -lh lemmario-dashboard/server/data/
+
+          echo ""
+          echo "📊 Record in lemmi.json:"
+          docker compose exec -T backend node -e "
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('/app/data/lemmi.json', 'utf-8'));
+            console.log('Totale record: ' + data.length);
+            if (data.length > 0) {
+              console.log('Primo record:', JSON.stringify(data[0]).substring(0, 200));
+              console.log('Campi:', Object.keys(data[0]).join(', '));
+            }
+          "
+
+          echo ""
+          echo "📊 Test API endpoint:"
+          docker compose exec -T backend wget -q -O- http://localhost:3001/health | head -5
+
+          echo ""
+          echo "✅ Ripristino dati completato!"
