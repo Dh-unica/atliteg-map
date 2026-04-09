@@ -23,6 +23,8 @@ Manuali utente, guide per sviluppatori, setup e procedure operative.
 ### Guide Principali
 - [Quick Start](guides/quick-start.md) - Guida rapida per iniziare
 - [User Guide](guides/user-guide.md) - Manuale utente completo
+- [Nota Componente Tecnica Atlante](guides/nota-componente-tecnica-atlante.md) - Sintesi divulgativa della componente tecnica per presentazioni e seminari
+- [Nota Componente Tecnica Atlante HTML](guides/nota-componente-tecnica-atlante.html) - Versione presentabile in stile slide con diagramma architetturale e focus su UI e filtri
 - [Deployment Guide](guides/deployment-guide.md) - Guida al deployment in produzione
 - [Testing Guide](guides/testing.md) - Guida all'esecuzione dei test
 - [Test Checklist](guides/test-checklist.md) - Checklist per il testing manuale (189 test)
