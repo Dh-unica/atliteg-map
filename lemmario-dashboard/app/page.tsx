@@ -20,7 +20,7 @@ const GeographicalMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[580px] w-full bg-gray-100 rounded-lg flex items-center justify-center">
+      <div className="h-[380px] sm:h-[580px] w-full bg-gray-100 rounded-lg flex items-center justify-center">
         <p className="text-gray-600">Caricamento mappa...</p>
       </div>
     )
@@ -60,7 +60,7 @@ export default function Home() {
         <CompactToolbar onToggleIndice={() => setIsIndiceOpen(!isIndiceOpen)} />
       </div>
 
-      <main className="w-full px-lg py-2 flex-1">
+      <main className="w-full px-2 sm:px-lg py-2 flex-1">
         {/* Layout principale con LayoutGroup per animazioni responsive */}
         <LayoutGroup>
           {/* Layout principale: Mappa 80% + Dettaglio Forme 20% - Full Width */}
@@ -96,7 +96,7 @@ export default function Home() {
                 animate={{ opacity: 1, backdropFilter: 'blur(8px)' }}
                 exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
                 transition={{ duration: 0.3 }}
-                className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50"
+                className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center bg-black/50"
                 onClick={() => setIsIndiceOpen(false)}
               >
                 {/* Modal content con scale + slide animation */}
@@ -105,7 +105,7 @@ export default function Home() {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9, y: 20 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                  className="bg-white rounded-lg shadow-card-hover max-w-4xl w-full max-h-[80vh] overflow-y-auto m-4"
+                  className="bg-white rounded-t-2xl sm:rounded-lg shadow-card-hover max-w-4xl w-full max-h-[90vh] sm:max-h-[80vh] overflow-y-auto sm:m-4"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <AlphabeticalIndex onClose={() => setIsIndiceOpen(false)} />
@@ -114,7 +114,7 @@ export default function Home() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setIsIndiceOpen(false)}
-                      className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover transition-fast text-sm font-medium"
+                      className="px-6 py-3 bg-primary text-white rounded-md hover:bg-primary-hover transition-fast text-sm font-medium"
                     >
                       Chiudi
                     </motion.button>
@@ -127,34 +127,34 @@ export default function Home() {
         document.body
       )}
 
-      <footer className="bg-white border-t border-border px-lg py-4">
+      <footer className="bg-white border-t border-border px-2 sm:px-lg py-4">
         <div className="max-w-container mx-auto space-y-4">
           {/* Loghi */}
-          <div className="flex items-center justify-center gap-8">
+          <div className="flex items-center justify-center gap-4 sm:gap-8 flex-wrap">
             <img
               src="/data/logo/LogoUniversitàDiSalerno.jpg"
               alt="Università degli Studi di Salerno"
-              className="h-16 w-auto object-contain"
+              className="h-10 sm:h-16 w-auto object-contain"
             />
             <img
               src="/data/logo/unistrasi.jpg"
               alt="Università per Stranieri di Siena"
-              className="h-16 w-auto object-contain"
+              className="h-10 sm:h-16 w-auto object-contain"
             />
             <img
               src="/data/logo/Federico_II_University_Logo.png"
               alt="Università di Napoli Federico II"
-              className="h-16 w-auto object-contain"
+              className="h-10 sm:h-16 w-auto object-contain"
             />
             <img
               src="/data/logo/DH_logo+type1@256px_[RGB_black].png"
               alt="Digital Humanities Cagliari"
-              className="h-16 w-auto object-contain"
+              className="h-10 sm:h-16 w-auto object-contain"
             />
             <img
               src="/data/logo/Logo_lungo_RGB_d0.png"
               alt="Università degli studi di Cagliari"
-              className="h-16 w-auto object-contain"
+              className="h-10 sm:h-16 w-auto object-contain"
             />
           </div>
 

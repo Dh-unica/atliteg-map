@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
@@ -13,14 +13,31 @@ interface MapBoundedPopupProps {
 export function MapBoundedPopup({ lemmaGroups, locationName, onClose }: MapBoundedPopupProps) {
   // Stati
   const [expandedLemmi, setExpandedLemmi] = useState<Set<string>>(new Set());
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Calcola numero di colonne dinamicamente (max 3)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const debouncedCheck = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(check, 150);
+    };
+    window.addEventListener('resize', debouncedCheck);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', debouncedCheck);
+    };
+  }, []);
+
+  // Calcola numero di colonne dinamicamente (max 3, 1 su mobile)
   const numColumns = useMemo(() => {
+    if (isMobile) return 1;
     const totalLemmi = lemmaGroups.size;
     if (totalLemmi === 1) return 1;
     if (totalLemmi === 2) return 2;
     return 3;
-  }, [lemmaGroups]);
+  }, [lemmaGroups, isMobile]);
 
   // Dividi lemmi in colonne (responsive)
   const columns = useMemo(() => {
@@ -33,16 +50,6 @@ export function MapBoundedPopup({ lemmaGroups, locationName, onClose }: MapBound
 
     return cols;
   }, [lemmaGroups, numColumns]);
-
-  // Calcola larghezza dinamica del popup basata sul contenuto
-  const popupWidth = useMemo(() => {
-    // Per 1 lemma: larghezza minima compatta
-    if (numColumns === 1) return 'auto';
-    // Per 2 lemmi: larghezza media
-    if (numColumns === 2) return '520px';
-    // Per 3+ lemmi: larghezza completa
-    return '840px';
-  }, [numColumns]);
 
   const toggleLemma = (lemmaName: string) => {
     setExpandedLemmi(prev => {
@@ -105,18 +112,11 @@ export function MapBoundedPopup({ lemmaGroups, locationName, onClose }: MapBound
   };
 
   return (
-    <div
-      className="bg-white rounded-lg shadow-xl"
-      style={{
-        width: popupWidth,
-        minWidth: numColumns === 1 ? '240px' : undefined,
-        maxWidth: '90vw'
-      }}
-    >
+    <div className="bg-white rounded-lg shadow-xl w-full">
       {/* HEADER */}
       <div className="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-t-lg border-b">
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-lg">{locationName}</h3>
+          <h3 className="font-bold text-base sm:text-lg truncate" title={locationName}>{locationName}</h3>
           <p className="text-sm text-gray-600">
             {lemmaGroups.size} {lemmaGroups.size === 1 ? 'lemma' : 'lemmi'}
           </p>
@@ -124,7 +124,7 @@ export function MapBoundedPopup({ lemmaGroups, locationName, onClose }: MapBound
 
         <button
           onClick={onClose}
-          className="p-1.5 hover:bg-gray-200 rounded transition-colors ml-3"
+          className="p-2 hover:bg-gray-200 rounded transition-colors ml-3 flex-shrink-0"
           title="Chiudi"
           aria-label="Chiudi popup"
         >
@@ -133,9 +133,9 @@ export function MapBoundedPopup({ lemmaGroups, locationName, onClose }: MapBound
       </div>
 
       {/* CONTENT - COLONNE DINAMICHE */}
-      <div className="overflow-y-auto max-h-[300px]">
+      <div className="overflow-y-auto max-h-[50vh] sm:max-h-[300px]">
         <div
-          className="gap-3 p-4"
+          className="gap-3 p-3 sm:p-4"
           style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${numColumns}, 1fr)`

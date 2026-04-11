@@ -245,9 +245,10 @@ function MarkerClusterGroup({
       const popupContainer = document.createElement('div');
       popupContainer.className = 'map-popup-container';
 
-      // Configura popup con dimensioni ottimizzate
+      // Configura popup con dimensioni ottimizzate (responsive)
+      const isMobileDevice = window.innerWidth < 640;
       const popup = L.popup({
-        maxWidth: 900,
+        maxWidth: isMobileDevice ? window.innerWidth - 32 : 900,
         className: 'map-bounded-popup',
         closeButton: false, // Usiamo il bottone custom del componente
       });
@@ -437,7 +438,7 @@ export function GeographicalMap() {
   }, [filteredLemmi]);
 
   return (
-    <div className="relative h-[580px] w-full">
+    <div className="relative h-[380px] sm:h-[580px] w-full">
       {/* Loading Overlay */}
       {isLoading && (
         <div className="map-loading-overlay">

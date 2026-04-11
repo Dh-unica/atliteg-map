@@ -56,7 +56,7 @@ export const LemmaDetail: React.FC = () => {
   if (displayedLemmas.length === 0) {
     return (
       <FadeIn>
-        <div className="card p-8 flex flex-col items-center justify-center text-center" style={{ height: '580px' }}>
+        <div className="card p-8 flex flex-col items-center justify-center text-center" style={{ minHeight: '200px', height: 'clamp(200px, 50vw, 580px)' }}>
           <motion.div
             animate={{
               scale: [1, 1.1, 1],
@@ -85,7 +85,7 @@ export const LemmaDetail: React.FC = () => {
   }
 
   return (
-    <div className="card !p-0 flex flex-col overflow-hidden" style={{ height: '580px' }}>
+    <div className="card !p-0 flex flex-col overflow-hidden" style={{ minHeight: '200px', height: 'clamp(200px, 50vw, 580px)' }}>
       {/* Header Sticky - Padding minimale */}
       <div className="px-1.5 pt-1.5 pb-1.5 border-b border-border sticky top-0 bg-white z-10">
         <h2 className="text-base font-semibold text-text-primary mb-0.5">Dettaglio Forme</h2>

@@ -228,10 +228,10 @@ export function CompactToolbar({ onToggleIndice }: CompactToolbarProps) {
 
   return (
     <div className="bg-white border-b border-border">
-      <div className="max-w-container mx-auto px-lg py-1">
-        <div className="flex items-center gap-3 flex-wrap">
+      <div className="max-w-container mx-auto px-2 sm:px-lg py-1.5">
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Search Bar - Compatta */}
-          <div className="relative flex-1 min-w-[300px]" ref={searchRef}>
+          <div className="relative flex-1 min-w-0 w-full sm:min-w-[200px]" ref={searchRef}>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-muted w-4 h-4" />
               <input
