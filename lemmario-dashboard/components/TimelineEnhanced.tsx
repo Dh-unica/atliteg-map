@@ -244,7 +244,23 @@ export const TimelineEnhanced: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [viewMode, setViewMode] = useState<'bar' | 'heatmap'>('bar');
   const [zoomLevel, setZoomLevel] = useState<'quarter' | 'decade' | 'century'>('quarter');
-  const itemsPerPage = zoomLevel === 'quarter' ? 12 : zoomLevel === 'decade' ? 20 : 8;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    let t: ReturnType<typeof setTimeout>;
+    const debounced = () => { clearTimeout(t); t = setTimeout(check, 150); };
+    window.addEventListener('resize', debounced);
+    return () => { clearTimeout(t); window.removeEventListener('resize', debounced); };
+  }, []);
+
+  // Fewer bars on mobile so labels don't overflow
+  const itemsPerPage = zoomLevel === 'quarter'
+    ? (isMobile ? 6 : 12)
+    : zoomLevel === 'decade'
+      ? (isMobile ? 10 : 20)
+      : 8;
 
   // Raggruppa per quarti di secolo - AGGREGAZIONE TOTALE (indipendente da location)
   const quartCenturies = useMemo(() => {
@@ -475,7 +491,7 @@ export const TimelineEnhanced: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             transition={motionConfig.spring.soft}
-            className="flex items-end gap-3"
+            className="flex items-end gap-1 sm:gap-3 w-full overflow-hidden"
           >
             {/* Freccia sinistra */}
             <motion.button
@@ -563,14 +579,14 @@ export const TimelineEnhanced: React.FC = () => {
                         </motion.button>
                         
                         {/* Label con periodo */}
-                        <div className="mt-1.5 text-center">
+                        <div className="mt-1 text-center w-full overflow-hidden">
                           <motion.div
-                            className={`text-[10px] font-semibold transition-colors ${
+                            className={`text-[9px] sm:text-[10px] font-semibold transition-colors truncate leading-tight ${
                               isSelected || isHighlighted || isHovered ? 'text-blue-600' : 'text-gray-600'
                             }`}
                             animate={{ scale: isSelected ? 1.1 : 1 }}
                           >
-                            {startYear}-{endYear}
+                            {isMobile ? startYear : `${startYear}-${endYear}`}
                           </motion.div>
                         </div>
                       </motion.div>

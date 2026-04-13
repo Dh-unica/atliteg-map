@@ -8,9 +8,12 @@ interface MapBoundedPopupProps {
   lemmaGroups: Map<string, any[]>;
   locationName: string;
   onClose: () => void;
+  /** When true the component header (location name + close button) is omitted.
+   *  Used when the header is rendered by the parent mobile modal. */
+  hideHeader?: boolean;
 }
 
-export function MapBoundedPopup({ lemmaGroups, locationName, onClose }: MapBoundedPopupProps) {
+export function MapBoundedPopup({ lemmaGroups, locationName, onClose, hideHeader = false }: MapBoundedPopupProps) {
   // Stati
   const [expandedLemmi, setExpandedLemmi] = useState<Set<string>>(new Set());
   const [isMobile, setIsMobile] = useState(false);
@@ -62,13 +65,12 @@ export function MapBoundedPopup({ lemmaGroups, locationName, onClose }: MapBound
   // Rendering accordion item
   const renderAccordionItem = ([lemmaName, lemmi]: [string, any[]]) => {
     const isExpanded = expandedLemmi.has(lemmaName);
-    const categoria = lemmi[0]?.Categoria || '';
     
     return (
       <div key={lemmaName} className="border-b last:border-0">
         <button
           onClick={() => toggleLemma(lemmaName)}
-          className="w-full flex items-start justify-between p-2 hover:bg-gray-50 transition-colors text-left"
+          className="w-full flex items-start justify-between p-3 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left min-h-[44px]"
           aria-expanded={isExpanded}
           aria-label={`${isExpanded ? 'Chiudi' : 'Espandi'} dettagli per ${lemmaName}`}
         >
@@ -113,27 +115,29 @@ export function MapBoundedPopup({ lemmaGroups, locationName, onClose }: MapBound
 
   return (
     <div className="bg-white rounded-lg shadow-xl w-full">
-      {/* HEADER */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-t-lg border-b">
-        <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-base sm:text-lg truncate" title={locationName}>{locationName}</h3>
-          <p className="text-sm text-gray-600">
-            {lemmaGroups.size} {lemmaGroups.size === 1 ? 'lemma' : 'lemmi'}
-          </p>
-        </div>
+      {/* HEADER — hidden when parent renders its own header (mobile modal) */}
+      {!hideHeader && (
+        <div className="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-t-lg border-b">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-base sm:text-lg truncate" title={locationName}>{locationName}</h3>
+            <p className="text-sm text-gray-600">
+              {lemmaGroups.size} {lemmaGroups.size === 1 ? 'lemma' : 'lemmi'}
+            </p>
+          </div>
 
-        <button
-          onClick={onClose}
-          className="p-2 hover:bg-gray-200 rounded transition-colors ml-3 flex-shrink-0"
-          title="Chiudi"
-          aria-label="Chiudi popup"
-        >
-          <XMarkIcon className="w-5 h-5 text-gray-600" />
-        </button>
-      </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-200 rounded transition-colors ml-3 flex-shrink-0"
+            title="Chiudi"
+            aria-label="Chiudi popup"
+          >
+            <XMarkIcon className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+      )}
 
       {/* CONTENT - COLONNE DINAMICHE */}
-      <div className="overflow-y-auto max-h-[50vh] sm:max-h-[300px]">
+      <div className={hideHeader ? '' : 'overflow-y-auto max-h-[50vh] sm:max-h-[300px]'}>
         <div
           className="gap-3 p-3 sm:p-4"
           style={{
@@ -142,7 +146,7 @@ export function MapBoundedPopup({ lemmaGroups, locationName, onClose }: MapBound
           }}
         >
           {columns.map((col, colIdx) => (
-            <div key={colIdx} className="space-y-2">
+            <div key={colIdx} className="space-y-1">
               {col.map(renderAccordionItem)}
             </div>
           ))}
