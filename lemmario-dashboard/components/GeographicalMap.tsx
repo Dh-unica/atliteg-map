@@ -251,56 +251,51 @@ function MarkerClusterGroup({
       // Determina nome località per il popup
       const locationName = marker.lemmi[0]?.CollGeografica || 'Località';
 
-      const isMobileDevice = isMobile();
+      // Crea un container per il popup React (usato solo su desktop)
+      const popupContainer = document.createElement('div');
+      popupContainer.className = 'map-popup-container';
 
-      if (isMobileDevice) {
-        // Su mobile: usa modal full-screen invece del popup Leaflet
-        leafletMarker.on('click', () => {
+      const popup = L.popup({
+        maxWidth: 900,
+        className: 'map-bounded-popup',
+        closeButton: false,
+      });
+
+      // Sempre bind del popup — il redirect a modal avviene in popupopen
+      leafletMarker.bindPopup(popup);
+
+      leafletMarker.on('popupopen', (e) => {
+        // Controlla il viewport AL MOMENTO del click (non alla creazione del marker)
+        if (isMobile()) {
+          // Mobile: chiudi il popup immediatamente e mostra il modal full-screen
+          leafletMarker.closePopup();
           onMobileClick({ lemmaGroups, locationName });
-        });
-      } else {
-        // Su desktop: comportamento popup Leaflet standard
-        // Crea un container per il popup React
-        const popupContainer = document.createElement('div');
-        popupContainer.className = 'map-popup-container';
+          return;
+        }
 
-        // Configura popup con dimensioni ottimizzate (responsive)
-        const popup = L.popup({
-          maxWidth: 900,
-          className: 'map-bounded-popup',
-          closeButton: false, // Usiamo il bottone custom del componente
-        });
+        // Desktop: render componente React nel popup
+        const root = createRoot(popupContainer);
+        root.render(
+          <MapBoundedPopup
+            lemmaGroups={lemmaGroups}
+            locationName={locationName}
+            onClose={() => leafletMarker.closePopup()}
+          />
+        );
+        popup.setContent(popupContainer);
 
-        // Bind popup al marker
-        leafletMarker.bindPopup(popup);
+        // Centra la mappa sul popup con un leggero offset verso l'alto
+        setTimeout(() => {
+          const px = map.project(e.target.getLatLng());
+          px.y -= 180;
+          map.panTo(map.unproject(px), { animate: true, duration: 0.5 });
+        }, 100);
+      });
 
-        // Render componente React quando popup si apre
-        leafletMarker.on('popupopen', (e) => {
-          const root = createRoot(popupContainer);
-          root.render(
-            <MapBoundedPopup
-              lemmaGroups={lemmaGroups}
-              locationName={locationName}
-              onClose={() => leafletMarker.closePopup()}
-            />
-          );
-          popup.setContent(popupContainer);
-
-          // Centra la mappa sul popup con un leggero offset verso l'alto
-          // per assicurarsi che il popup sia completamente visibile
-          setTimeout(() => {
-            const px = map.project(e.target.getLatLng());
-            px.y -= 180; // Offset di 180px verso l'alto per centrare meglio il popup
-            map.panTo(map.unproject(px), { animate: true, duration: 0.5 });
-          }, 100);
-        });
-
-        // Cleanup quando popup si chiude
-        leafletMarker.on('popupclose', () => {
-          // Unmount React component
-          popupContainer.innerHTML = '';
-        });
-      }
+      // Cleanup quando popup si chiude
+      leafletMarker.on('popupclose', () => {
+        popupContainer.innerHTML = '';
+      });
       
       // Store marker reference con key unico
       const markerKey = `${marker.lat}-${marker.lng}`;
@@ -525,16 +520,6 @@ export function GeographicalMap() {
                 className: isHighlighted ? 'highlighted' : ''
               }}
               onEachFeature={(_, layer) => {
-                const isMobileDevice = isMobile();
-
-                if (isMobileDevice) {
-                  layer.on('click', () => {
-                    setMobileModalData({ lemmaGroups, locationName });
-                  });
-                  return;
-                }
-
-                // Crea container per popup React
                 const popupContainer = document.createElement('div');
                 popupContainer.className = 'map-popup-container';
 
@@ -546,8 +531,13 @@ export function GeographicalMap() {
 
                 layer.bindPopup(popup);
 
-                // Render React component on popup open
-                layer.on('popupopen', (e) => {
+                layer.on('popupopen', () => {
+                  if (isMobile()) {
+                    layer.closePopup();
+                    setMobileModalData({ lemmaGroups, locationName });
+                    return;
+                  }
+
                   const root = createRoot(popupContainer);
                   root.render(
                     <MapBoundedPopup
@@ -566,13 +556,12 @@ export function GeographicalMap() {
                       const center = bounds.getCenter();
                       const mapInstance = leafletLayer._map;
                       const px = mapInstance.project(center);
-                      px.y -= 180; // Offset di 180px verso l'alto per centrare meglio il popup
+                      px.y -= 180;
                       mapInstance.panTo(mapInstance.unproject(px), { animate: true, duration: 0.5 });
                     }
                   }, 100);
                 });
 
-                // Cleanup on popup close
                 layer.on('popupclose', () => {
                   popupContainer.innerHTML = '';
                 });
@@ -614,16 +603,6 @@ export function GeographicalMap() {
                 className: isHighlighted ? 'highlighted' : ''
               }}
               onEachFeature={(_, layer) => {
-                const isMobileDevice = isMobile();
-
-                if (isMobileDevice) {
-                  layer.on('click', () => {
-                    setMobileModalData({ lemmaGroups, locationName: `${regionName} (Regione)` });
-                  });
-                  return;
-                }
-
-                // Crea container per popup React
                 const popupContainer = document.createElement('div');
                 popupContainer.className = 'map-popup-container';
 
@@ -635,8 +614,13 @@ export function GeographicalMap() {
 
                 layer.bindPopup(popup);
 
-                // Render React component on popup open
-                layer.on('popupopen', (e) => {
+                layer.on('popupopen', () => {
+                  if (isMobile()) {
+                    layer.closePopup();
+                    setMobileModalData({ lemmaGroups, locationName: `${regionName} (Regione)` });
+                    return;
+                  }
+
                   const root = createRoot(popupContainer);
                   root.render(
                     <MapBoundedPopup
@@ -655,13 +639,12 @@ export function GeographicalMap() {
                       const center = bounds.getCenter();
                       const mapInstance = leafletLayer._map;
                       const px = mapInstance.project(center);
-                      px.y -= 180; // Offset di 180px verso l'alto per centrare meglio il popup
+                      px.y -= 180;
                       mapInstance.panTo(mapInstance.unproject(px), { animate: true, duration: 0.5 });
                     }
                   }, 100);
                 });
 
-                // Cleanup on popup close
                 layer.on('popupclose', () => {
                   popupContainer.innerHTML = '';
                 });
