@@ -51,12 +51,24 @@ const TimelineProgressBar: React.FC<{
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
-    updatePosition(e);
+    updatePositionFromX(e.clientX);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    updatePositionFromX(e.touches[0].clientX);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
     if (isDragging) {
-      updatePosition(e);
+      updatePositionFromX(e.clientX);
+    }
+  };
+
+  const handleTouchMove = (e: TouchEvent) => {
+    if (isDragging) {
+      e.preventDefault();
+      updatePositionFromX(e.touches[0].clientX);
     }
   };
 
@@ -64,16 +76,19 @@ const TimelineProgressBar: React.FC<{
     setIsDragging(false);
   };
 
-  const updatePosition = (e: MouseEvent | React.MouseEvent) => {
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  const updatePositionFromX = (clientX: number) => {
     if (!progressRef.current) return;
-    
     const rect = progressRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
     const newProgress = x / rect.width;
     const newPage = Math.floor(newProgress * totalPages);
-    
-    if (newPage !== currentPage && newPage >= 0 && newPage < totalPages) {
-      onScrub(newPage);
+    const clampedPage = Math.min(newPage, totalPages - 1);
+    if (clampedPage !== currentPage) {
+      onScrub(clampedPage);
     }
   };
 
@@ -81,9 +96,13 @@ const TimelineProgressBar: React.FC<{
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
       };
     }
   }, [isDragging]);
@@ -92,8 +111,19 @@ const TimelineProgressBar: React.FC<{
     <div className="w-full mb-3">
       <div 
         ref={progressRef}
-        className="relative h-1 bg-gray-200 rounded-full cursor-pointer overflow-hidden"
+        className="relative h-3 bg-gray-200 rounded-full cursor-pointer touch-none"
         onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        role="slider"
+        aria-valuemin={0}
+        aria-valuemax={totalPages - 1}
+        aria-valuenow={currentPage}
+        aria-label="Navigazione temporale"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowLeft') onScrub(Math.max(0, currentPage - 1));
+          if (e.key === 'ArrowRight') onScrub(Math.min(totalPages - 1, currentPage + 1));
+        }}
       >
         {/* Background fill */}
         <motion.div
@@ -106,12 +136,12 @@ const TimelineProgressBar: React.FC<{
         
         {/* Scrubber handle */}
         <motion.div
-          className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-2 border-blue-600 rounded-full shadow-md ${
+          className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-blue-600 rounded-full shadow-md ${
             isDragging ? 'scale-125' : ''
           }`}
           animate={{ left: `${progress * 100}%` }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          style={{ marginLeft: '-6px' }}
+          style={{ marginLeft: '-8px' }}
           whileHover={{ scale: 1.3 }}
           whileTap={{ scale: 1.4 }}
         />
@@ -214,7 +244,23 @@ export const TimelineEnhanced: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [viewMode, setViewMode] = useState<'bar' | 'heatmap'>('bar');
   const [zoomLevel, setZoomLevel] = useState<'quarter' | 'decade' | 'century'>('quarter');
-  const itemsPerPage = zoomLevel === 'quarter' ? 12 : zoomLevel === 'decade' ? 20 : 8;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    let t: ReturnType<typeof setTimeout>;
+    const debounced = () => { clearTimeout(t); t = setTimeout(check, 150); };
+    window.addEventListener('resize', debounced);
+    return () => { clearTimeout(t); window.removeEventListener('resize', debounced); };
+  }, []);
+
+  // Fewer bars on mobile so labels don't overflow
+  const itemsPerPage = zoomLevel === 'quarter'
+    ? (isMobile ? 6 : 12)
+    : zoomLevel === 'decade'
+      ? (isMobile ? 10 : 20)
+      : 8;
 
   // Raggruppa per quarti di secolo - AGGREGAZIONE TOTALE (indipendente da location)
   const quartCenturies = useMemo(() => {
@@ -445,7 +491,7 @@ export const TimelineEnhanced: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             transition={motionConfig.spring.soft}
-            className="flex items-end gap-3"
+            className="flex items-end gap-1 sm:gap-3 w-full overflow-hidden"
           >
             {/* Freccia sinistra */}
             <motion.button
@@ -533,14 +579,14 @@ export const TimelineEnhanced: React.FC = () => {
                         </motion.button>
                         
                         {/* Label con periodo */}
-                        <div className="mt-1.5 text-center">
+                        <div className="mt-1 text-center w-full overflow-hidden">
                           <motion.div
-                            className={`text-[10px] font-semibold transition-colors ${
+                            className={`text-[9px] sm:text-[10px] font-semibold transition-colors truncate leading-tight ${
                               isSelected || isHighlighted || isHovered ? 'text-blue-600' : 'text-gray-600'
                             }`}
                             animate={{ scale: isSelected ? 1.1 : 1 }}
                           >
-                            {startYear}-{endYear}
+                            {isMobile ? startYear : `${startYear}-${endYear}`}
                           </motion.div>
                         </div>
                       </motion.div>

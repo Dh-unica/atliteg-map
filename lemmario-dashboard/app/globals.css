@@ -61,7 +61,9 @@ h3 {
 }
 
 .map-popup-container {
-  min-width: 840px;
+  min-width: 280px;
+  width: min(840px, 90vw);
+  max-width: 90vw;
 }
 
 /* Map Bounded Popup Animations */
