@@ -229,9 +229,9 @@ export function CompactToolbar({ onToggleIndice }: CompactToolbarProps) {
   return (
     <div className="bg-white border-b border-border">
       <div className="max-w-container mx-auto px-2 sm:px-lg py-1.5">
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Search Bar - Compatta */}
-          <div className="relative flex-1 min-w-0 w-full sm:min-w-[200px]" ref={searchRef}>
+        <div className="flex flex-col items-start sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+          {/* Search Bar - Compatta (riga intera su mobile) */}
+          <div className="relative w-full sm:flex-1 sm:min-w-[200px]" ref={searchRef}>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-muted w-4 h-4" />
               <input
@@ -275,6 +275,8 @@ export function CompactToolbar({ onToggleIndice }: CompactToolbarProps) {
             )}
           </div>
 
+          {/* Indice + Filtri: seconda riga su mobile, stessa riga su sm+ */}
+          <div className="flex items-center gap-2 flex-wrap">
           {/* Indice Alfabetico Button */}
           {onToggleIndice && (
             <button
@@ -317,11 +319,12 @@ export function CompactToolbar({ onToggleIndice }: CompactToolbarProps) {
               </button>
             )}
           </div>
+          </div>
 
           {/* Active Filters Tags */}
           {hasActiveFilters && (
             <div className="flex flex-wrap gap-1 ml-auto">
-              {/* Lemma selezionato dall'indice alfabetico */}
+              {/* Lemma selezionato dall\'indice alfabetico */}
               {selectedLemma && (
                 <motion.span
                   initial={{ opacity: 0, scale: 0.8 }}
