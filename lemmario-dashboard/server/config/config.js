@@ -10,10 +10,12 @@ module.exports = {
   frontendApiKeys: (process.env.FRONTEND_API_KEYS || 'default_dev_key').split(','),
   
   // Admin credentials
-  adminUsername: process.env.ADMIN_USERNAME || 'admin',
+  // Trim difensivo: i secret GitHub possono arrivare con trailing whitespace
+  // o newline, e un confronto stretto fallirebbe silenziosamente.
+  adminUsername: (process.env.ADMIN_USERNAME || 'admin').trim(),
   // Supporta sia password in chiaro (ADMIN_PASSWORD) che hash (ADMIN_PASSWORD_HASH)
-  adminPassword: process.env.ADMIN_PASSWORD, // Password in chiaro (più semplice)
-  adminPasswordHash: process.env.ADMIN_PASSWORD_HASH || '$2b$10$wqM4/4h7tknyFoihM8wLCuLTv9Ndbs3V1rQ70hsSQtOwa2k47wnQW', // default: "admin"
+  adminPassword: process.env.ADMIN_PASSWORD ? process.env.ADMIN_PASSWORD.trim() : undefined,
+  adminPasswordHash: (process.env.ADMIN_PASSWORD_HASH || '$2b$10$wqM4/4h7tknyFoihM8wLCuLTv9Ndbs3V1rQ70hsSQtOwa2k47wnQW').trim(), // default: "admin"
   
   // JWT
   jwtSecret: process.env.JWT_SECRET || 'your_jwt_secret_change_in_production',
