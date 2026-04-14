@@ -21,7 +21,23 @@ jobs:
     environment:
       name: production
       url: ${{ vars.PRODUCTION_URL }}
-    
+
+    # Env a livello di job: GitHub Actions inietta i secret direttamente
+    # nell'environment del processo, senza passare da interpolazione shell.
+    # In questo modo password con caratteri speciali ($, ", `, \, !, ecc.)
+    # arrivano integre a `docker compose`, che le usa per la sostituzione
+    # ${VAR} nel compose file con precedenza sulla `.env` del repo.
+    env:
+      FRONTEND_API_KEYS: ${{ secrets.FRONTEND_API_KEYS }}
+      NEXT_PUBLIC_API_KEY: ${{ secrets.NEXT_PUBLIC_API_KEY }}
+      ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      ADMIN_PASSWORD_HASH: ""
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }}
+      NEXT_PUBLIC_API_URL: ""
+      NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+
     steps:
       # Step 1: Informazioni di avvio
       - name: 🚀 Inizio Deploy
@@ -143,22 +159,9 @@ jobs:
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           
           cd ${{ secrets.DEPLOY_PATH }}
-          
-          # Export environment variables for docker compose
-          export FRONTEND_API_KEYS="${{ secrets.FRONTEND_API_KEYS }}"
-          export NEXT_PUBLIC_API_KEY="${{ secrets.NEXT_PUBLIC_API_KEY }}"
-          export ADMIN_USERNAME="${{ secrets.ADMIN_USERNAME }}"
-          export ADMIN_PASSWORD="${{ secrets.ADMIN_PASSWORD }}"
-          export ADMIN_PASSWORD_HASH=""
-          export JWT_SECRET="${{ secrets.JWT_SECRET }}"
-          export ALLOWED_ORIGINS="${{ secrets.ALLOWED_ORIGINS }}"
-          export NEXT_PUBLIC_API_URL=""
-          export NEXT_PUBLIC_SITE_URL="${{ secrets.NEXT_PUBLIC_SITE_URL }}"
-          
-          echo "📋 Environment variables configured (values hidden for security)"
-          
-          cd ${{ secrets.DEPLOY_PATH }}
-          
+
+          echo "📋 Environment variables configured via job-level env (values hidden for security)"
+
           echo "🔨 Esecuzione docker compose build..."
           docker compose build --no-cache
           
@@ -174,20 +177,7 @@ jobs:
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           
           cd ${{ secrets.DEPLOY_PATH }}
-          
-          # Export environment variables for docker compose
-          export FRONTEND_API_KEYS="${{ secrets.FRONTEND_API_KEYS }}"
-          export NEXT_PUBLIC_API_KEY="${{ secrets.NEXT_PUBLIC_API_KEY }}"
-          export ADMIN_USERNAME="${{ secrets.ADMIN_USERNAME }}"
-          export ADMIN_PASSWORD="${{ secrets.ADMIN_PASSWORD }}"
-          export ADMIN_PASSWORD_HASH=""
-          export JWT_SECRET="${{ secrets.JWT_SECRET }}"
-          export ALLOWED_ORIGINS="${{ secrets.ALLOWED_ORIGINS }}"
-          export NEXT_PUBLIC_API_URL=""
-          export NEXT_PUBLIC_SITE_URL="${{ secrets.NEXT_PUBLIC_SITE_URL }}"
-          
-          cd ${{ secrets.DEPLOY_PATH }}
-          
+
           # Stop containers esistenti
           echo "🛑 Stopping running containers..."
           docker compose down
