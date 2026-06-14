@@ -319,85 +319,42 @@ La documentazione completa è disponibile nella cartella [`docs/`](docs/README.m
 - [Security Config](docs/security/SECURITY_CONFIG.md) - Configurazione security (Nginx, JWT, API keys)
 - [Security Executive Summary](docs/security/SECURITY_EXEC_SUMMARY.md) - Sommario esecutivo
 
-#### 🔍 Navigazione Rapida per Ruolo
-
-**Per Utenti Finali:**
-- [Quick Start](docs/guides/quick-start.md) → [User Guide](docs/guides/user-guide.md)
-
-**Per Sviluppatori:**
-- [System Architecture](docs/architecture/system-architecture.md) → [Components](docs/components/lemmario-dashboard.md) → [Quick Commands](docs/guides/quick-commands.md)
-
-**Per DevOps:**
-- [Deployment Guide](docs/guides/deployment-guide.md) → [GitHub Actions](docs/guides/github-actions.md) → [Security Config](docs/security/SECURITY_CONFIG.md)
-
 ---
 
-## 🔧 Personalizzazione
+## 📚 Documentazione
 
-- Configurazione avanzata: vedi [Vite](https://vite.dev/config/) e `tailwind.config.js`.
-- Per modifiche dati, aggiorna i file in `data/` e `public/data/`.
+Tutta la documentazione è organizzata in [`docs/`](docs/README.md):
 
----
+| Sezione | Per chi? | Start here |
+|---------|----------|-----------|
+| **Info** `[Non tecnico]` | Utenti, stakeholder | [START-HERE](docs/info/START-HERE.md) → [FAQ](docs/info/faq.md) |
+| **Architecture** `[Tecnico]` | Sviluppatori | [System Architecture](docs/architecture/system-architecture.md) |
+| **Guides** `[Tecnico]` | DevOps, Developers | [Quick Start](docs/guides/quick-start.md) → [Deployment](docs/guides/deployment-runbook.md) |
+| **Components** `[Tecnico]` | Frontend Engineers | [Lemmario Dashboard](docs/components/lemmario-dashboard.md) |
+| **Security** `[Tecnico]` | Security/DevOps | [Security Handbook](docs/security/security-handbook.md) |
+| **Project** `[Tecnico]` | Contributors | [Roadmap](docs/project/ROADMAP.md) → [Contributing](docs/project/CONTRIBUTING.md) |
 
-## 🔍 Ottimizzazione SEO
-
-<p align="center">
-	<img src="docs/seo_point.jpg" alt="Punteggio SEO" width="100%"/>
-	<br/>
-	<em>Punteggio SEO 100/100</em>
-</p>
-
-Il progetto implementa le seguenti ottimizzazioni SEO per migliorare la visibilità sui motori di ricerca:
-
-### Metadata e Tag Essenziali
-
-- **Title e Description**: Tag ottimizzati con parole chiave rilevanti
-- **Open Graph**: Tag per condivisione ottimale su social media (Facebook, LinkedIn)
-- **Twitter Cards**: Metadata specifici per Twitter
-- **Favicon e Apple Icons**: Icone per tutti i dispositivi e piattaforme
-- **Canonical URL**: Prevenzione contenuti duplicati
-
-### Contenuto Strutturato
-
-- **Schema.org JSON-LD**: Markup strutturato per motori di ricerca (tipo: WebSite, SearchAction, Organization)
-- **Sitemap XML**: Generazione automatica per indicizzazione completa
-- **Robots.txt**: Configurazione crawling ottimale
-
-### Performance e Accessibilità
-
-- **Viewport Meta**: Ottimizzazione per dispositivi mobili
-- **Theme Color**: Integrazione con browser mobile
-- **Alt Text**: Descrizioni per tutte le immagini (inclusi loghi partner)
-
-### Partner Istituzionali
-
-Il footer include i loghi dei partner con markup semantico appropriato:
-
-- Università Roma Tre
-- Università per Stranieri di Siena
-- DH Unica (Digital Humanities, Università di Cagliari)
-- AtLiTeG Project
-
-**Punteggio SEO**: 100/100
-
-<p align="right">(<a href="#readme-top">torna su</a>)</p>
+→ [**Indice Completo (docs/README.md)**](docs/README.md)
 
 ---
 
 <a name="faq"></a>
 ## ❓ FAQ
 
-**Come posso contribuire?**  
-Consulta la guida [CONTRIBUTING](docs/project/CONTRIBUTING.md) e apri una issue o una pull request.
+**Come iniziare a usare ATLITEG?**  
+→ [Guida Rapida (3 min)](docs/info/START-HERE.md) oppure [User Guide completa](docs/guides/user-guide.md)
 
-**Come risolvo problemi di caricamento dati?**  
-Vedi [Upload Troubleshooting](docs/guides/upload-troubleshooting.md).
+**Come posso contribuire al progetto?**  
+→ [Linee guida Contributing](docs/project/CONTRIBUTING.md)
 
 **Dove trovo la documentazione tecnica?**  
-Tutta la documentazione è in [docs/](docs/README.md).
+→ [Indice Documentazione Completo](docs/README.md) (Architecture, Guides, Components, Security)
 
-**Come verifico la salute del deployment?**  
-Controlla i log Docker e lo stato del runner GitHub Actions.
+**Come aggiorno i dati?**  
+→ [Data Operations Runbook](docs/guides/data-operations.md)
+
+**Come faccio il deploy?**  
+→ [Deployment Runbook](docs/guides/deployment-runbook.md)
 
 ---
 
