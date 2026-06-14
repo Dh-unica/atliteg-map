@@ -288,6 +288,11 @@ test_*.csv
 *_TEST.csv
 playwright_test.csv
 
+# Playwright e2e artifacts
+test-results/
+playwright-report/
+blob-report/
+
 # Deleted files
 deleted/
 
