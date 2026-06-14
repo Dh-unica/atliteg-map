@@ -6,7 +6,7 @@ owner: Tech Lead
 
 # 📚 Indice Documentazione Atliteg
 
-**Versione**: 3.0 (Governanza)  
+**Versione**: 3.1 (Phase 4-5)  
 **Ultima Modifica**: 14 Giugno 2026  
 **Stato**: Aggiornato - Governance Stabilita
 
@@ -28,7 +28,7 @@ Documenti di design, specifiche tecniche e requisiti del sistema.
 - [Requirements](architecture/requirements.md) `[Tecnico]` — Requisiti funzionali e non funzionali
 - [Performance](architecture/performance.md) `[Tecnico]` — Analisi e ottimizzazione performance
 
-**Archivio**: Motion system e Dynamic graphics → [archive/](../archive/)
+**Archivio**: Motion system e Dynamic graphics → [archive/](archive/)
 
 ## 📘 Guides
 Manuali utente, guide per sviluppatori, setup e procedure operative.
@@ -38,7 +38,7 @@ Manuali utente, guide per sviluppatori, setup e procedure operative.
 - [User Guide](guides/user-guide.md) `[Non tecnico]` — Manuale completo per utenti
 
 ### ⚙️ Deployment & Operations (Runbook)
-- [Deployment Runbook](guides/deployment-runbook.md) `[Tecnico]` — Procedura deploy, rollback, incident response (**canonico**)
+- [Deployment Guide](guides/deployment-guide.md) `[Tecnico]` — Procedura deploy, rollback, incident response (**canonico**)
 - [Multi-Domain Deployment](guides/multi-domain-deployment.md) `[Tecnico]` — Setup DNS e certificate multi-dominio
 - [GitHub Actions](guides/github-actions.md) `[Tecnico]` — Configurazione CI/CD e secrets
 - [Data Operations](guides/data-operations.md) `[Tecnico]` — Upload CSV, refresh, troubleshooting (**canonico**)
@@ -77,7 +77,7 @@ Meta-documentazione del progetto, roadmap e governance.
 - [Changelog](project/CHANGELOG.md) `[Tecnico]` — Registro modifiche (con note legacy)
 - [Contributing](project/CONTRIBUTING.md) `[Tecnico]` — Workflow sviluppo e PR standards
 
-**Archivio**: Feedback analysis, bugs tracking → [archive/project/](../archive/)
+**Archivio**: Feedback analysis, bugs tracking → [archive/project/](archive/project/)
 
 ## 🔒 Security
 Documentazione relativa a sicurezza e protezione dati.
@@ -85,7 +85,7 @@ Documentazione relativa a sicurezza e protezione dati.
 - [Security Handbook](security/security-handbook.md) `[Tecnico]` — Guida completa security (**canonico**)
 - [Security Executive Summary](security/SECURITY_EXEC_SUMMARY.md) `[Non tecnico]` — Riepilogo per stakeholder non tecnici
 
-**Archivio**: Data Security (legacy), Security Config (legacy) → [archive/security/](../archive/)
+**Archivio**: Data Security (legacy), Security Config (legacy) → [archive/security/](archive/security/)
 
 ---
 
@@ -104,7 +104,8 @@ Decisioni passate, report di incidenti, design obsoleti.
 Tutti i documenti qui sono taggati `[STORICO]` e non operativi.
 
 - [Analysis & Planning](archive/) `[STORICO]` — Analisi storiche (es. MAPCN, feedback analysis)
-- [CI/CD Incidents](archive/ci-cd-fix-jan2026.md) `[STORICO]` — Incident report 2026
+- [CI/CD Incidents](archive/incidents/ci-cd-fix-jan2026.md) `[STORICO]` — Incident report 2026
+- [Testing Reports](archive/testing/backend-only-test-report.md) `[STORICO]` — Report test storici
 - [Security Legacy](archive/security/) `[STORICO]` — Config e design security passati
 - [Project Legacy](archive/project/) `[STORICO]` — Feedback, bugs tracking, copilot instructions
 
@@ -126,6 +127,11 @@ Tutti i documenti qui sono taggati `[STORICO]` e non operativi.
 - ✅ Creata sezione Info (percorso non tecnico)
 - ✅ Documentazione legacy spostata in Archive
 
+**14 Giugno 2026 - v3.1 (Phase 4-5)**: Percorso non tecnico + archivio storico
+- ✅ Consolidati i documenti obsoleti in redirect ai documenti canonici
+- ✅ Spostati i documenti storici in `docs/archive/` (planning, incidents, testing, analysis)
+- ✅ Aggiornati indice e percorsi rapidi verso fonti operative uniche
+
 ## 🔍 Navigazione Rapida
 
 **Per Utenti Finali**:
@@ -135,10 +141,10 @@ Tutti i documenti qui sono taggati `[STORICO]` e non operativi.
 - [System Architecture](architecture/system-architecture.md) → [Lemmario Dashboard](components/lemmario-dashboard.md) → [Quick Commands](guides/quick-commands.md)
 
 **Per DevOps**:
-- [Deployment Guide](guides/deployment-guide.md) → [GitHub Actions](guides/github-actions.md) → [Security Config](security/SECURITY_CONFIG.md)
+- [Deployment Guide](guides/deployment-guide.md) → [Data Operations](guides/data-operations.md) → [Security Handbook](security/security-handbook.md)
 
 **Per Tester**:
-- [Testing Guide](guides/testing.md) → [Test Checklist](guides/test-checklist.md)
+- [Testing Guide](guides/testing.md) → [Quick Commands](guides/quick-commands.md)
 
 **Per Project Manager**:
 - [Roadmap](project/ROADMAP.md) → [Bugs and Features](project/bugs-and-features.md) → [Changelog](project/CHANGELOG.md)
