@@ -17,12 +17,13 @@ export function MetricsSummary() {
   ];
 
   return (
-    <div className="bg-white border-b border-border">
+    <div className="bg-white border-b border-border" data-testid="metrics-summary">
       <div className="max-w-container mx-auto px-2 sm:px-lg py-1.5">
         <div className="grid grid-cols-3 sm:flex sm:items-center sm:justify-between gap-x-2 gap-y-1 sm:gap-4 flex-wrap">
           {metricsArray.map(({ icon: Icon, label, value, color, delay }) => (
             <motion.div
               key={label}
+              data-testid={`metric-${label.toLowerCase()}`}
               className="flex items-center gap-1 sm:gap-1.5 cursor-default"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
