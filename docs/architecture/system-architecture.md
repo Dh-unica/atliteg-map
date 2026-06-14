@@ -1,29 +1,64 @@
-# Architettura Dashboard Lemmario AtLiTeG
+---
+status: "[OPERATIVO]"
+last-updated: 2026-06-14
+owner: Tech Lead
+---
+
+# Architettura Sistema ATLITEG
+
+**SINGLE SOURCE OF TRUTH** per l'architettura del progetto. Tutti i documenti tecnici rinviano qui.
 
 ## Panoramica
 
-La Dashboard Lemmario AtLiTeG è un'applicazione web Single Page Application (SPA) costruita con React, TypeScript e Vite. Utilizza un'architettura component-based con gestione dello stato centralizzata tramite React Context API.
+ATLITEG è una **SPA statica** (Static Site Generation + Client-side rendering) che visualizza dati storici di linguistica gastronomica italiana. Non ha backend API — tutti i dati sono pre-processati in JSON statici e serviti tramite Nginx.
 
-## Stack Tecnologico
+```
+┌─────────────────────────────────────────────────────┐
+│ Nginx (porta 9000)                                  │
+│ └─ Serve /out/ (static export)                     │
+│    └─ Next.js build output (HTML + JS + CSS)       │
+└─────────────────────────────────────────────────────┘
+          ↓ (browser carica app)
+┌─────────────────────────────────────────────────────┐
+│ React 19 + Next.js 16 (App Router)                 │
+│ │                                                   │
+│ ├─ Data Loading: CSV → JSON in /public/data/      │
+│ ├─ State: React Context (AppContext)               │
+│ ├─ Filtering: useFilteredData hook (memoized)      │
+│ └─ UI: Leaflet map + Radix UI components           │
+└─────────────────────────────────────────────────────┘
+```
 
-### Core
-- **React 18.3**: Libreria UI con hooks moderni
-- **TypeScript 5.0**: Type safety e migliore developer experience
-- **Vite 6.3**: Build tool veloce con HMR
+## Stack Tecnologico (Attuale)
 
-### UI & Styling
-- **Tailwind CSS 3.4**: Utility-first CSS framework
-- **Radix UI**: Componenti headless accessibili (Select, Dialog, Tooltip, Popover, etc.)
-- **Lucide React**: Libreria icone moderna
+### Runtime
+- **Next.js 16.0**: React meta-framework (App Router, Turbopack)
+- **React 19.2**: UI library con hooks moderni
+- **TypeScript 5**: Type safety assoluto
+- **Tailwind CSS 3.4**: Utility-first styling
+- **Radix UI 2.x**: Accessible headless components
 
-### Mappa & Geospatial
-- **Leaflet 1.9**: Libreria mappa interattiva
-- **React Leaflet 4.2**: React bindings per Leaflet
-- **Leaflet.markercluster**: Plugin per clustering marker
+### Mappa & Visualizzazione
+- **Leaflet 1.9**: Mappa interattiva (no Mapbox, no Google Maps)
+- **React-Leaflet 5.0**: React bindings per Leaflet
+- **Leaflet.MarkerCluster 1.5**: Clustering automatico marker
+- **GeoJSON**: Poligoni aree geografiche (file statico in `/public/data/`)
 
 ### Data Processing
-- **PapaParse 5.5**: Parser CSV performante
-- **GeoJSON**: Standard per dati geografici
+- **PapaParse 5.5**: CSV parser client-side (backup fallback)
+- **Node.js preprocessing**: `scripts/preprocess-data.js` (CSV → JSON)
+
+### DevOps
+- **Docker**: Multi-stage build (Node builder + Nginx)
+- **Nginx**: Web server, SPA routing, health checks
+- **GitHub Actions**: Self-hosted runner (deploy automatico su master)
+
+### No Backend
+- ❌ Node.js backend API
+- ❌ Database (PostgreSQL, MongoDB, etc.)
+- ❌ Authentication/Authorization
+- ✅ Static data files in `/public/data/`
+- ✅ Client-side filtering e state management
 
 ## Architettura Applicazione
 
@@ -95,6 +130,30 @@ interface FilterState {
   selectedYear: number | null;    // Anno timeline
   selectedLemma: Lemma | null;    // Lemma selezionato
 }
+```
+
+## Flusso Dati (Data Flow)
+
+```
+1. Build Time (CI/CD)
+   └─ CSV in /data/
+      └─ scripts/preprocess-data.js (Node.js)
+      └─ Genera /public/data/lemmi.json + geojson.json
+      └─ Next.js build → /out/ (static)
+
+2. Deploy Time
+   └─ Docker: Copy /out/ → Nginx /usr/share/nginx/html
+   └─ Nginx: Serve on port 9000
+
+3. Runtime (Client Browser)
+   └─ App loads /out/page.html
+   └─ React hydrates + loads data:
+      ├─ Fetch /data/lemmi.json (5MB+, cached)
+      ├─ Fetch /data/geojson.json (geoboundaries)
+      └─ Parse in browser (PapaParse fallback)
+   └─ AppContext stores global state
+   └─ useFilteredData memoizes filtered results
+   └─ Components render Leaflet map + UI
 ```
 
 ## Gestione Stato

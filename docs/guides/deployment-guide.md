@@ -1,103 +1,144 @@
-# Guida Deployment - Dashboard Lemmario AtLiTeG
+---
+status: "[OPERATIVO]"
+last-updated: 2026-06-14
+owner: DevOps/Tech Lead
+---
 
-## Panoramica
+# Deployment Runbook — ATLITEG
 
-Questa guida fornisce istruzioni dettagliate per il deployment della Dashboard Lemmario AtLiTeG in vari ambienti (sviluppo, staging, produzione). L'applicazione utilizza Docker per garantire consistenza tra ambienti.
+**CANONICAL DEPLOYMENT GUIDE**. Segui esattamente questi step.
 
-## Prerequisiti
-
-### Software Richiesto
-
-- **Docker**: v20.10+ ([Installa Docker](https://docs.docker.com/get-docker/))
-- **Docker Compose**: v2.0+ (incluso con Docker Desktop)
-- **Git**: v2.30+ (per clonare repository)
-- **Node.js**: v20+ (solo per sviluppo locale senza Docker)
-- **npm**: v10+ (incluso con Node.js)
-
-### Verifica Installazioni
+## Quick Deploy (5 min)
 
 ```bash
-docker --version
-# Docker version 20.10.x o superiore
+# Da /home/ale/docker/dh-unica/atliteg-map
+cd lemmario-dashboard
 
-docker-compose --version
-# Docker Compose version v2.x.x o superiore
+# 1. Preprocess CSV → JSON
+npm run preprocess
 
-node --version
-# v20.x.x o superiore (opzionale)
+# 2. Build static export
+npm run build
 
-npm --version
-# 10.x.x o superiore (opzionale)
+# 3. Docker build + run
+cd .. && docker-compose build
+docker-compose up -d
+
+# Verifica: http://localhost:9000
 ```
 
-## Struttura Deployment
+## Prerequisites
 
-### File di Configurazione
+- Docker 20.10+ + Docker Compose 2.0+
+- Node.js 20+, npm 10+ (per local dev)
+- Git 2.30+
 
-```
-atliteg-map/
-├── Lemmario_figma/
-│   ├── Dockerfile              # Multi-stage build
-│   ├── docker-compose.yml      # Orchestrazione servizi
-│   ├── nginx.conf              # Configurazione Nginx
-│   ├── .dockerignore           # File esclusi da build
-│   ├── package.json            # Dipendenze Node.js
-│   └── vite.config.ts          # Configurazione Vite
-├── data/                        # Dataset (mounted as volume)
-│   ├── Lemmi_forme_atliteg_updated.csv
-│   └── Ambiti geolinguistici newline.json
-└── docs/                        # Documentazione
-```
+## Workflow Completo
 
-## Ambiente di Sviluppo
-
-### Opzione 1: Dev Server Locale (Vite)
-
-**Vantaggi**: Hot Module Replacement (HMR), debugging facile
-**Quando usarlo**: Sviluppo attivo con modifiche frequenti
+### Fase 1: Preparazione Dati
 
 ```bash
-# 1. Naviga nella directory del progetto
-cd /home/ale/docker/atliteg-map/Lemmario_figma
+cd lemmario-dashboard
 
-# 2. Installa dipendenze
-npm ci --legacy-peer-deps
+# Se CSV è stato aggiornato:
+# 1. Copia nuovo CSV in /data/ o modifica quello in /public/data/
+# 2. Preprocess: converte CSV → JSON ottimizzato
+npm run preprocess
 
-# 3. Avvia dev server
-npm run dev
-
-# 4. Apri browser su http://localhost:5173
+# Output: /public/data/lemmi.json + geojson.json
+ls -lh public/data/
 ```
 
-**Configurazione Vite** (`vite.config.ts`):
-
-```typescript
-export default defineConfig({
-  server: {
-    port: 5173,
-    host: true,  // Espone su 0.0.0.0
-    strictPort: true,
-    watch: {
-      usePolling: true,  // Necessario per Docker volumes
-    },
-  },
-});
-```
-
-**Variabili d'Ambiente** (`.env.development`):
-
-```env
-VITE_API_BASE_URL=http://localhost:5173
-VITE_DATA_PATH=/data
-```
-
-### Opzione 2: Docker Development
-
-**Vantaggi**: Ambiente identico a produzione, isolamento
-**Quando usarlo**: Testing deployment, verifica build
+### Fase 2: Build Next.js (Static Export)
 
 ```bash
-# 1. Naviga nella directory
+# Clean build
+rm -rf .next out
+
+# Build (output → /out/)
+npm run build
+
+# Verifica output
+ls -lh out/ | head -20
+find out -name '*.html' | wc -l  # Deve avere index.html
+```
+
+### Fase 3: Docker Build
+
+```bash
+cd ..
+
+# Build immagine (multi-stage)
+docker-compose build
+
+# Verifica immagine
+docker images | grep atliteg
+```
+
+### Fase 4: Run e Verifica
+
+```bash
+# Start container
+docker-compose up -d
+
+# Logs
+docker-compose logs -f lemmario-dashboard
+
+# Health check
+curl http://localhost:9000/  # 200 OK?
+docker-compose ps  # Status: healthy?
+```
+
+### Fase 5: Test Base
+
+- [ ] http://localhost:9000 carica mappa
+- [ ] Ricerca: digita parola, mappa si aggiorna
+- [ ] Filtri: categoria/periodo funzionano
+- [ ] Timeline: scrolling temporale funziona
+- [ ] Mobile: layout responsive
+
+## Troubleshooting
+
+### Build fallisce
+
+```bash
+# Pulisci e riprova
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
+
+### Mappa non carica dati
+
+```bash
+# Verifica file dati
+ls -lh lemmario-dashboard/public/data/
+
+# Se mancanti:
+cd lemmario-dashboard
+npm run preprocess
+```
+
+### Docker non accetta porte
+
+```bash
+# Cambia porta in docker-compose.yml (default: 9000)
+# Oppure uccidi processo esistente:
+lsof -i :9000
+kill -9 <PID>
+```
+
+## Ambienti
+
+### Sviluppo
+
+```bash
+cd lemmario-dashboard
+npm install
+npm run dev  # http://localhost:3000
+```
+
+### Staging/Produzione
 cd /home/ale/docker/atliteg-map/Lemmario_figma
 
 # 2. Build immagine
