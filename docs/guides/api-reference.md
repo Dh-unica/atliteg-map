@@ -1,8 +1,29 @@
-# API Documentation - AtLiTeG Lemmario Dashboard
+---
+status: "[OPERATIVO]"
+last-updated: 2026-06-14
+owner: Tech Lead
+---
 
-## Panoramica
+# API Reference — ATLITEG
 
-Questa documentazione descrive l'architettura interna dell'applicazione AtLiTeG Lemmario Dashboard, includendo custom hooks, services, utilities e data flow. L'applicazione non espone API REST esterne (è una SPA statica), ma utilizza un'architettura modulare interna ben definita.
+⚠️ **IMPORTANT**: ATLITEG **non ha API REST esterna**. È una SPA statica che carica dati pre-processati.
+
+Questa è una **referenza rapida** per gli internal hooks/services. Per dettagli completi → [system-architecture.md](../architecture/system-architecture.md).
+
+## Sommario Dati
+
+### Cosa NON c'è
+- ❌ API REST (`/api/...`)
+- ❌ Backend Node.js/Express/Python
+- ❌ Database queries
+- ❌ Authentication endpoints
+- ❌ Real-time updates
+
+### Cosa C'è
+- ✅ Static JSON files in `/public/data/`
+- ✅ Client-side React hooks
+- ✅ Leaflet maps + interactions
+- ✅ CSV parser (PapaParse) as fallback
 
 ## Indice
 

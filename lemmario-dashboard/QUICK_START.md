@@ -1,63 +1,27 @@
-# 🚀 Quick Start Guide - Dashboard Lemmario AtLiTeG
+---
+status: "[STORICO]"
+last-updated: 2026-06-14
+owner: Archive
+---
 
-## Avvio Rapido
+# ⚠️ Legacy Document — Vedi Quick Start Canonico
 
-### Prerequisiti
+Questo file è rimasto per backward compatibility.
 
-- Node.js 18+ installato
-- Docker e Docker Compose (opzionale, solo per produzione)
+**Vai a → [docs/guides/quick-start.md](../docs/guides/quick-start.md)** per il quick start aggiornato.
 
-### Sviluppo Locale
+---
 
-```bash
-# 1. Vai nella directory del progetto
-cd /home/ale/docker/atliteg-map/lemmario-dashboard
+## Cosa C'è Qui (Legacy)
 
-# 2. Installa le dipendenze (se non già fatto)
-npm install
+Test-specific documentation per regioni. Ora consolidato in:
+- [Quick Start](../docs/guides/quick-start.md) — Setup entry point
+- [Deployment Runbook](../docs/guides/deployment-runbook.md) — Procedures
+- [Regions Feature](../docs/guides/regions-feature.md) — Feature details
 
-# 3. Avvia il server di sviluppo
-npm run dev
+---
 
-# 4. Apri il browser
-# L'app sarà disponibile su http://localhost:3000
-```
-
-### Produzione con Docker
-
-```bash
-# 1. Vai nella directory del progetto
-cd /home/ale/docker/atliteg-map/lemmario-dashboard
-
-# 2. Builda e avvia i container
-docker-compose up --build
-
-# 3. Apri il browser
-# L'app sarà disponibile su http://localhost:9000
-```
-
-## 📱 Come Usare l'Applicazione
-
-### 1. Esplorazione Iniziale
-
-All'apertura dell'app vedrai:
-
-- **Header** con logo e titolo del progetto
-- **Barra filtri** in alto (Categoria, Periodo, Reset)
-- **Metriche** che mostrano totali (località, lemmi, anni, attestazioni)
-- **Mappa** vuota (nessun marker al primo caricamento)
-- **Timeline** con gli anni del dataset
-- **Indice alfabetico** con lettere A-Z
-- **Pannello dettaglio** vuoto (con messaggio informativo)
-
-### 2. Applicare Filtri
-
-#### Filtro per Categoria
-
-1. Click sul menu a tendina "Categoria"
-2. Seleziona una o più categorie (es. "Salse", "Dolci")
-3. La mappa si popola con i marker
-4. Tutti i componenti si aggiornano automaticamente
+Archiviato: 14 giugno 2026 (Phase 0-1)
 
 #### Filtro per Periodo
 

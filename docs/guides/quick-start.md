@@ -1,61 +1,97 @@
-# 🚀 START HERE - Guida Rapida
-
-## ✅ Problema Risolto
-
-**Prima**: Cercando "aggiazzata" non vedevi il confine della Sicilia  
-**Ora**: Cercando "aggiazzata" vedi il confine della Sicilia in giallo! 🎉
-
+---
+status: "[OPERATIVO]"
+last-updated: 2026-06-14
+owner: Tech Lead
 ---
 
-## 🎯 Test in 3 Passaggi
+# Quick Start — ATLITEG
 
-### 1. Avvia il Server
+**SINGLE SOURCE OF TRUTH** for getting started. È il entry point canonico.
+
+## 3 Minuti: Avvia Locale
+
 ```bash
-cd /home/ale/docker/atliteg-map/lemmario-dashboard
+# 1. Vai nella directory
+cd /home/ale/docker/dh-unica/atliteg-map/lemmario-dashboard
+
+# 2. Installa dipendenze (first time only)
+npm install
+
+# 3. Avvia dev server
 npm run dev
+
+# 4. Apri http://localhost:3000
 ```
 
-### 2. Apri il Browser
+La mappa dovrebbe caricarsi con i dati. Fatto! 🎉
+
+## Per Users: Accedi al Sito
+
+- **Live**: https://atlante.atliteg.org
+- **Backup**: https://linguistica.dh.unica.it/atliteg
+
+Vedi [User Guide](../info/guida-utente-breve.md) per come usare l'app.
+
+## Per Developers: Setup Completo
+
+### Prerequisiti
+
+```bash
+node --version    # v20.0.0+
+npm --version     # v10.0.0+
+git --version     # v2.30.0+
 ```
-http://localhost:3000
+
+### 1. Clone e Install
+
+```bash
+git clone https://github.com/Dh-unica/atliteg-map.git
+cd atliteg-map/lemmario-dashboard
+npm install
 ```
 
-### 3. Cerca "aggiazzata"
-Dovresti vedere:
-- ✅ **Confine Sicilia** in giallo/arancione
-- ✅ **Popup** cliccando sul confine: "Sicilia (Regione)"
-- ✅ **Counter**: "1 locations • 1 lemmas"
+### 2. Dev Environment
 
----
+```bash
+# Start dev server (Turbopack, hot reload)
+npm run dev
 
-## 📖 Documentazione Completa
+# App will be at http://localhost:3000
+# Ctrl+C to stop
+```
 
-### Quick Reference
-- **Test rapido**: [COME_TESTARE.md](./COME_TESTARE.md)
-- **Implementazione**: [IMPLEMENTAZIONE_FRONTEND_COMPLETATA.md](./IMPLEMENTAZIONE_FRONTEND_COMPLETATA.md)
-- **Riepilogo**: [RIEPILOGO_SOLUZIONE_FRONTEND.md](./RIEPILOGO_SOLUZIONE_FRONTEND.md)
-- **Sommario**: [SOLUZIONE_COMPLETA.txt](./SOLUZIONE_COMPLETA.txt)
+### 3. Build & Verifica
 
-### Documentazione Backend (originale)
-- [README_INTEGRAZIONE_REGIONI.md](./README_INTEGRAZIONE_REGIONI.md) - Guida completa backend
-- [PIANO_INTEGRAZIONE_REGIONI.md](./PIANO_INTEGRAZIONE_REGIONI.md) - Piano dettagliato
-- [ESEMPIO_INTEGRAZIONE_FRONTEND.md](./ESEMPIO_INTEGRAZIONE_FRONTEND.md) - Esempi codice
-- [scripts/README_REGION_CODES.md](./scripts/README_REGION_CODES.md) - Script utility
+```bash
+# Production build
+npm run build
 
----
+# Test production build locally
+npm run start
 
-## 🔧 Cosa È Stato Fatto
+# App will be at http://localhost:3000
+```
 
-### Backend ✅
-1. Aggiornato CSV con codici ISTAT regionali
-2. Creati script per aggiornamento e test
-3. Generato file `lemmi.json` con campo `RegionIstatCode`
+### 4. Docker (Production-like)
 
-### Frontend ✅
-1. Creato hook `useRegions()` per caricare GeoJSON regioni
-2. Creato utility `regionUtils.ts` per gestire regioni
-3. Aggiornato `GeographicalMap.tsx` per visualizzare confini
-4. Copiati file necessari in `public/data/`
+```bash
+cd ..
+
+# Build + run
+docker-compose up --build
+
+# App will be at http://localhost:9000
+# Logs: docker-compose logs -f
+# Stop: docker-compose down
+```
+
+## Prossimi Step
+
+- **Modifica codice**: Edita file in `lemmario-dashboard/` → reload automatico
+- **Comandi utili**: [Quick Commands](quick-commands.md)
+- **Architettura**: [System Architecture](../architecture/system-architecture.md)
+- **Deploy**: [Deployment Runbook](deployment-runbook.md)
+- **Contribuisci**: [Contributing Guide](../project/CONTRIBUTING.md)
 
 ---
 

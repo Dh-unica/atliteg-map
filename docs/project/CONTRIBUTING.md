@@ -75,9 +75,36 @@ The application will be available at `http://localhost:5173`.
 
 ## Development Workflow
 
+### Prerequisites
+
+```bash
+# Verifica Node.js 20+
+node --version  # v20.x.x
+
+# Installa dipendenze (first time)
+cd lemmario-dashboard
+npm install
+```
+
+### Local Dev (Next.js 16)
+
+```bash
+cd lemmario-dashboard
+
+# Start dev server
+npm run dev  # http://localhost:3000
+
+# Hot reload automatico con Turbopack
+```
+
 ### Branch Naming Convention
 
-- `feature/short-description` - New features
+**Follow gitflow**:
+- `feat/description` - New features
+- `fix/description` - Bug fixes
+- `refactor/description` - Code refactoring
+- `docs/description` - Documentation
+- `chore/description` - Maintenance
 - `fix/short-description` - Bug fixes
 - `docs/short-description` - Documentation changes
 - `refactor/short-description` - Code refactoring
