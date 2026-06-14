@@ -17,12 +17,21 @@ Tutti i documenti in questa cartella sono **storici** e **non operativi**. Rappr
 
 ```
 archive/
-  ├── analysis/           # Analisi decisionali passate (MAPCN, evaluations, etc.)
+  ├── analysis/           # Analisi decisionali passate (MAPCN, evaluations)
   ├── incidents/          # Report di incidenti e problemi
+  ├── planning/           # Piani e report di riordino documentazione
+  ├── testing/            # Report test storici
   ├── security/           # Configurazioni security legacy
   ├── project/            # Feedback, bugs tracking, AI instructions
   └── README.md           # Questo file
 ```
+
+## Contenuto Archiviato (Phase 4-5)
+
+- `analysis/`: documenti `MAPCN_*` spostati da `docs/improvement/`
+- `incidents/`: `ci-cd-fix-jan2026.md`
+- `planning/`: `PIANO_RIORDINO_DOCUMENTAZIONE.md`, `ANALISI_DOCUMENTAZIONE.md`, `TABELLA_STATO_DOCUMENTAZIONE.md`, `IMPLEMENTAZIONE_COMPLETATA.md`, `SOMMARIO_AGGIORNAMENTO_DOCS.md`
+- `testing/`: `backend-only-test-report.md`
 
 ## Come leggere documenti qui
 
