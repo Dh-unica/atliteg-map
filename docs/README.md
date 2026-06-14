@@ -1,84 +1,112 @@
+---
+status: "[OPERATIVO]"
+last-updated: 2026-06-14
+owner: Tech Lead
+---
+
 # 📚 Indice Documentazione Atliteg
 
-**Versione**: 2.0  
-**Ultima Modifica**: 17 Gennaio 2026  
-**Stato**: Aggiornato - Consolidamento Completato
+**Versione**: 3.0 (Governanza)  
+**Ultima Modifica**: 14 Giugno 2026  
+**Stato**: Aggiornato - Governance Stabilita
 
 Benvenuto nella documentazione ufficiale del progetto Atliteg. Qui troverai tutte le risorse necessarie per comprendere, sviluppare e mantenere il progetto.
+
+**Legenda**:  
+`[Non tecnico]` — Accessibile senza background tech  
+`[Tecnico]` — Richiede conoscenza tecnica  
+`[STORICO]` — Documento di riferimento, non operativo
+
+---
 
 ## 🏗️ Architecture
 Documenti di design, specifiche tecniche e requisiti del sistema.
 
-- [System Architecture](architecture/system-architecture.md) - Panoramica dell'architettura del sistema
-- [Backend API Design](architecture/backend-api-design.md) - Design e implementazione API backend
-- [Dataset Specification](architecture/dataset-specification.md) - Specifiche dei dati e formati
-- [Dynamic Graphics](architecture/dynamic-graphics.md) - Dettagli sugli effetti grafici e visualizzazioni
-- [Motion System](architecture/motion-system.md) - Sistema di animazioni e transizioni
-- [Performance](architecture/performance.md) - Analisi e ottimizzazione delle performance
-- [Requirements](architecture/requirements.md) - Requisiti funzionali e non funzionali
+- [System Architecture](architecture/system-architecture.md) `[Tecnico]` — Panoramica completa architettura; **SINGLE SOURCE OF TRUTH**
+- [Backend API Design](architecture/backend-api-design.md) `[Tecnico]` — Design e implementazione API backend
+- [Dataset Specification](architecture/dataset-specification.md) `[Tecnico]` — Specifiche dati e formati
+- [Requirements](architecture/requirements.md) `[Tecnico]` — Requisiti funzionali e non funzionali
+- [Performance](architecture/performance.md) `[Tecnico]` — Analisi e ottimizzazione performance
+
+**Archivio**: Motion system e Dynamic graphics → [archive/](../archive/)
 
 ## 📘 Guides
 Manuali utente, guide per sviluppatori, setup e procedure operative.
 
-### Guide Principali
-- [Quick Start](guides/quick-start.md) - Guida rapida per iniziare
-- [User Guide](guides/user-guide.md) - Manuale utente completo
-- [Nota Componente Tecnica Atlante](guides/nota-componente-tecnica-atlante.md) - Sintesi divulgativa della componente tecnica per presentazioni e seminari
-- [Nota Componente Tecnica Atlante HTML](guides/nota-componente-tecnica-atlante.html) - Versione presentabile in stile slide con diagramma architetturale e focus su UI e filtri
-- [Deployment Guide](guides/deployment-guide.md) - Guida al deployment in produzione
-- [Testing Guide](guides/testing.md) - Guida all'esecuzione dei test
-- [Test Checklist](guides/test-checklist.md) - Checklist per il testing manuale (189 test)
+### 🚀 Getting Started
+- [Quick Start](guides/quick-start.md) `[Non tecnico]` — Guida rapida per iniziare (source unica)
+- [User Guide](guides/user-guide.md) `[Non tecnico]` — Manuale completo per utenti
 
-### Guide Tecniche
-- [GitHub Actions](guides/github-actions.md) - Configurazione CI/CD
-- [SEO Implementation](guides/seo-implementation.md) - Strategia SEO/AEO/GEO completa
-- [API Reference](guides/api-reference.md) - Riferimento API
-- [Quick Commands](guides/quick-commands.md) - Lista comandi frequenti
-- [Region Codes](guides/region-codes.md) - Guida ai codici regionali ISTAT
+### ⚙️ Deployment & Operations (Runbook)
+- [Deployment Runbook](guides/deployment-runbook.md) `[Tecnico]` — Procedura deploy, rollback, incident response (**canonico**)
+- [Multi-Domain Deployment](guides/multi-domain-deployment.md) `[Tecnico]` — Setup DNS e certificate multi-dominio
+- [GitHub Actions](guides/github-actions.md) `[Tecnico]` — Configurazione CI/CD e secrets
+- [Data Operations](guides/data-operations.md) `[Tecnico]` — Upload CSV, refresh, troubleshooting (**canonico**)
 
-### Guide Dati e Upload
-- [Data Sync](guides/data-sync.md) - Procedure di sincronizzazione dati
-- [CSV Upload Guide](guides/CSV_UPLOAD_GUIDE.md) - Guida caricamento CSV
-- [Upload Refresh Guide](guides/upload-refresh-guide.md) - Procedura refresh dati
-- [Upload Troubleshooting](guides/upload-troubleshooting.md) - Risoluzione problemi upload
+### 🧪 Testing & QA
+- [Testing Guide](guides/testing.md) `[Tecnico]` — Guida esecuzione test (**canonico**)
+- [Quick Commands](guides/quick-commands.md) `[Tecnico]` — Cheat sheet comandi frequenti
 
-### Feature Guides
-- [Regions Feature](guides/regions-feature.md) - Integrazione codici regionali ISTAT e visualizzazione confini
+### 📚 Reference & Features
+- [API Reference](guides/api-reference.md) `[Tecnico]` — Quickref API (→ backend-api-design per dettagli)
+- [Regions Feature](guides/regions-feature.md) `[Tecnico]` — Codici ISTAT e visualizzazione confini
+- [SEO Implementation](guides/seo-implementation.md) `[Tecnico]` — Strategia SEO/AEO/GEO
+
+### 🎓 Divulgazione Tecnica
+- [Nota Componente Tecnica Atlante](guides/nota-componente-tecnica-atlante.md) `[Non tecnico]` — Sintesi per presentazioni e seminari
+- [Nota Componente Tecnica Atlante HTML](guides/nota-componente-tecnica-atlante.html) `[Non tecnico]` — Versione slide con diagrammi
 
 ## 🧩 Components
-Documentazione specifica dei componenti del sistema.
+Documentazione tecnica dei componenti del sistema.
 
-### Componenti Principali
-- [Lemmario Dashboard](components/lemmario-dashboard.md) - Documentazione tecnica completa del frontend Next.js
-- [Dashboard Features](components/dashboard-features.md) - Funzionalità e componenti della dashboard
-- [Map Clustering Behavior](components/map-clustering-behavior.md) - Clustering sulla mappa geografica
-- [Timeline Component](components/timeline-component.md) - Componente timeline storica
-- [Popup System](components/popup-system.md) - Sistema popup mappa con accordion
+### Frontend Architecture
+- [Lemmario Dashboard](components/lemmario-dashboard.md) `[Tecnico]` — Documentazione tecnica Next.js/React frontend
+- [Map Clustering Behavior](components/map-clustering-behavior.md) `[Tecnico]` — Clustering e visualizzazione mappa Leaflet
+- [Timeline Component](components/timeline-component.md) `[Tecnico]` — Componente timeline storica
+- [Popup System](components/popup-system.md) `[Tecnico]` — Sistema popup mappa con accordion
 
-### Componenti UI
-- [Header](components/header.md) - Header con navigazione e branding
-- [Filters](components/filters.md) - Filtri categoria e periodo con multi-select
-- [Search Bar](components/search-bar.md) - Ricerca autocompletante con debounce
-- [Alphabetical Index](components/alphabetical-index.md) - Indice alfabetico A-Z
-- [Lemma Detail](components/lemma-detail.md) - Pannello dettaglio forme e occorrenze
-- [Metrics Summary](components/metrics-summary.md) - Metriche aggregate dashboard
+**UI Components**: [Header](components/header.md), [Filters](components/filters.md), [Search](components/search-bar.md), [Alphabetical Index](components/alphabetical-index.md), [Lemma Detail](components/lemma-detail.md), [Metrics](components/metrics-summary.md) → Consolidati in `lemmario-dashboard.md`
+
+**Dashboard Features**: [Dashboard Features](components/dashboard-features.md) → Consolidato in user guide + lemmario-dashboard.md
 
 ## ⚙️ Project
-Meta-documentazione del progetto e roadmap.
+Meta-documentazione del progetto, roadmap e governance.
 
-- [Roadmap](project/ROADMAP.md) - Piano sviluppo futuro (37 items, 6 release)
-- [Changelog](project/CHANGELOG.md) - Registro delle modifiche
-- [Contributing](project/CONTRIBUTING.md) - Linee guida per contribuire
-- [Bugs and Features](project/bugs-and-features.md) - Tracking di bug e funzionalità
-- [Copilot Instructions](project/copilot-instructions.md) - Istruzioni per l'AI assistant
-- [Feedback Analysis](project/feedback_analysis_20251224.md) - Analisi feedback utenti
+- [Governance Documentation](GOVERNANCE.md) `[Tecnico]` — Policy stato, ownership, naming conventions
+- [Roadmap](project/ROADMAP.md) `[Tecnico]` — Piano sviluppo futuro (37 items, 6 release)
+- [Changelog](project/CHANGELOG.md) `[Tecnico]` — Registro modifiche (con note legacy)
+- [Contributing](project/CONTRIBUTING.md) `[Tecnico]` — Workflow sviluppo e PR standards
+
+**Archivio**: Feedback analysis, bugs tracking → [archive/project/](../archive/)
 
 ## 🔒 Security
 Documentazione relativa a sicurezza e protezione dati.
 
-- [Data Security](security/DATA_SECURITY.md) - Setup protezione dati e file sensibili
-- [Security Config](security/SECURITY_CONFIG.md) - Configurazione security (Nginx, JWT, API keys)
-- [Security Executive Summary](security/SECURITY_EXEC_SUMMARY.md) - Sommario esecutivo per stakeholder
+- [Security Handbook](security/security-handbook.md) `[Tecnico]` — Guida completa security (**canonico**)
+- [Security Executive Summary](security/SECURITY_EXEC_SUMMARY.md) `[Non tecnico]` — Riepilogo per stakeholder non tecnici
+
+**Archivio**: Data Security (legacy), Security Config (legacy) → [archive/security/](../archive/)
+
+---
+
+## 💡 Info — Percorso Non Tecnico
+Per utenti, stakeholder e decisori senza background tecnico.
+
+- [Start Here](info/START-HERE.md) `[Non tecnico]` — Da qui iniziare (landing rapida)
+- [Guida Utente Breve](info/guida-utente-breve.md) `[Non tecnico]` — Come usare ATLITEG (3 min read)
+- [FAQ](info/faq.md) `[Non tecnico]` — Risposte a domande frequenti
+
+---
+
+## 📦 Archive — Documenti Storici
+Decisioni passate, report di incidenti, design obsoleti.
+
+Tutti i documenti qui sono taggati `[STORICO]` e non operativi.
+
+- [Analysis & Planning](archive/) `[STORICO]` — Analisi storiche (es. MAPCN, feedback analysis)
+- [CI/CD Incidents](archive/ci-cd-fix-jan2026.md) `[STORICO]` — Incident report 2026
+- [Security Legacy](archive/security/) `[STORICO]` — Config e design security passati
+- [Project Legacy](archive/project/) `[STORICO]` — Feedback, bugs tracking, copilot instructions
 
 ---
 
@@ -90,6 +118,13 @@ Documentazione relativa a sicurezza e protezione dati.
 - ✅ Creati 10 nuovi documenti (ROADMAP + 6 componenti + 3 feature docs)
 - ✅ Copertura componenti: 3 → 10 (333% incremento)
 - ✅ Documenti totali: 62 → ~48 (-23%)
+
+**14 Giugno 2026 - v3.0 (Governance)**: Stabilizzazione governance
+- ✅ Creato GOVERNANCE.md (policy e ownership)
+- ✅ Indice taggato per ruolo (non tecnico / tecnico / storico)
+- ✅ Identificati documenti canonici per tema
+- ✅ Creata sezione Info (percorso non tecnico)
+- ✅ Documentazione legacy spostata in Archive
 
 ## 🔍 Navigazione Rapida
 
