@@ -96,56 +96,81 @@ atlante.atliteg.org        A      123.45.67.89
 linguistica.dh.unica.it    A      123.45.67.89
 ```
 
-### Reverse Proxy (Nginx Frontend)
+### Reverse Proxy (terminazione TLS)
 
-Se utilizzi un reverse proxy upstream (es. per SSL termination), configura entrambi i domini:
+L'HTTPS **non** e' terminato da questa applicazione: `lemmario-dashboard/nginx.conf`
+ascolta in chiaro sulla porta 9000. Davanti c'e' un reverse proxy nginx su un
+server distinto, gestito in un repository separato.
+
+| | |
+|---|---|
+| Host del proxy | `90.147.144.144` (`ssh dhwp@90.147.144.144`, serve la VPN) |
+| Container | `dhunica_proxypass` |
+| Repository | [caprowsky/proxy.dh.unica](https://github.com/caprowsky/proxy.dh.unica) |
+| Conf del dominio primario | `sites-enabled/atlante_atliteg.conf` |
+| Conf del dominio secondario | `sites-enabled/linguistica_dhunica.conf` |
+| Backend | `http://90.147.144.147:9000` - questo container |
+
+#### Dominio primario: `atlante.atliteg.org`
+
+Certificato **Let's Encrypt** dedicato, rinnovato automaticamente da certbot sul
+proxy. Configurazione effettiva (estratto):
 
 ```nginx
-# Configurazione per atlante.atliteg.org
 server {
-    listen 443 ssl http2;
+    listen 443 ssl;
     server_name atlante.atliteg.org;
 
-    ssl_certificate /path/to/atlante.atliteg.org.crt;
-    ssl_certificate_key /path/to/atlante.atliteg.org.key;
+    ssl_certificate     /etc/letsencrypt/live/atlante.atliteg.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/atlante.atliteg.org/privkey.pem;
+
+    # Webroot per la challenge ACME (rinnovo automatico)
+    location /.well-known {
+        allow all;
+        root /var/www/ssl-proof/atlante_atliteg/;
+    }
 
     location / {
-        proxy_pass http://localhost:9000;
+        proxy_pass http://90.147.144.147:9000;
         proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-# Configurazione per linguistica.dh.unica.it
-server {
-    listen 443 ssl http2;
-    server_name linguistica.dh.unica.it;
-
-    ssl_certificate /path/to/linguistica.dh.unica.it.crt;
-    ssl_certificate_key /path/to/linguistica.dh.unica.it.key;
-
-    location /atliteg {
-        rewrite ^/atliteg(/.*)$ $1 break;
-        proxy_pass http://localhost:9000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Port $server_port;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location /atliteg/ {
-        proxy_pass http://localhost:9000/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_read_timeout 900s;
+        client_max_body_size 4000M;
     }
 }
 ```
 
-**Nota**: Per `linguistica.dh.unica.it/atliteg`, il reverse proxy rimuove il prefisso `/atliteg` prima di inoltrare al container Docker.
+Il blocco in ascolto sulla 80 redirige tutto su HTTPS, tranne `/.well-known`, che
+deve restare raggiungibile in HTTP perche' il rinnovo automatico funzioni.
+
+#### Dominio secondario: `linguistica.dh.unica.it/atliteg`
+
+Usa il **certificato wildcard di ateneo** (GEANT/DigiCert), rinnovato manualmente
+dall'ateneo, e **non inoltra all'app**: fa un 301 permanente verso il dominio
+primario.
+
+```nginx
+location /atliteg {
+    rewrite ^/atliteg/?(.*)$ https://atlante.atliteg.org/$1 permanent;
+}
+```
+
+```console
+$ curl -sS -o /dev/null -w '%{http_code} -> %{redirect_url}\n' \
+    https://linguistica.dh.unica.it/atliteg/
+301 -> https://atlante.atliteg.org/
+```
+
+Il traffico converge quindi sul dominio primario. Le due varianti restano
+rilevanti per `metadataBase`, CORS e SEO, ma non c'e' nessun stripping del
+prefisso `/atliteg` da mantenere lato app.
+
+Se in futuro si volesse servire l'app *anche* sotto `/atliteg` invece di
+redirigere, servirebbe sostituire la `rewrite` con un `proxy_pass` piu' la
+gestione del basePath in Next.js: non e' la configurazione attuale.
 
 ## Testing Post-Deploy
 
@@ -246,18 +271,39 @@ NEXT_PUBLIC_SITE_URL=https://atlante.atliteg.org
 docker compose up --build -d lemmario-dashboard
 ```
 
-### Problema: Certificato SSL non valido
+### Problema: Certificato SSL scaduto o non valido
 
-**Causa**: Il certificato non include entrambi i domini nei SAN (Subject Alternative Names).
+I due domini hanno **certificati distinti** su un proxy esterno, quindi non serve
+(e non si deve) generare un certificato unico con entrambi i domini nei SAN.
 
-**Soluzione**: Rigenera il certificato SSL includendo entrambi i domini:
+**Causa piu' probabile: il proxy non e' stato ricaricato dopo il rinnovo.** Nginx
+legge i certificati all'avvio e li tiene in memoria: un certificato rinnovato
+regolarmente resta non servito finche' non si ricarica il proxy. E' esattamente
+il guasto di settembre 2026 su `atlante.atliteg.org`, con il certificato
+rinnovato l'08/08 e quello servito scaduto il 07/09.
+
+Diagnosi - confrontare le due date:
 
 ```bash
-# Esempio con Let's Encrypt
-certbot certonly --nginx -d atlante.atliteg.org -d linguistica.dh.unica.it
+# 1. Cosa viene servito adesso
+echo | openssl s_client -servername atlante.atliteg.org \
+  -connect atlante.atliteg.org:443 2>/dev/null | openssl x509 -noout -dates
+
+# 2. Cosa c'e' su disco sul proxy
+ssh dhwp@90.147.144.144 'docker exec dhunica_proxypass \
+  cat /etc/letsencrypt/live/atlante.atliteg.org/fullchain.pem' \
+  | openssl x509 -noout -dates
 ```
 
-Oppure usa certificati separati per ogni dominio (come nell'esempio del reverse proxy).
+| Esito | Rimedio |
+|---|---|
+| Su disco valido, servito scaduto | `ssh dhwp@90.147.144.144 'docker exec dhunica_proxypass nginx -s reload'`, poi verificare che il deploy hook di certbot sia installato sul proxy |
+| Scaduto anche su disco (`atlante.atliteg.org`) | Sul proxy: `sudo certbot renew --force-renewal -d atlante.atliteg.org` |
+| Scaduto anche su disco (`linguistica.dh.unica.it`) | Certificato di ateneo: va richiesto all'ateneo, certbot non c'entra |
+
+⚠️ **Rebuild o restart di questo container non risolvono un problema di
+certificato**: il TLS non e' terminato qui. La procedura completa sta nel README
+del repo del proxy, sezione "Rinnovo automatico Let's Encrypt".
 
 ## Monitoraggio
 
@@ -326,4 +372,4 @@ Se stai migrando da un deployment a dominio singolo:
 - [Metadata Next.js](../../lemmario-dashboard/app/layout.tsx)
 - [Variabili d'ambiente](../../.env)
 - [Script di test](../../test-deployment.sh)
-- [GitHub Actions deployment](.github/workflows/deploy-production.yml)
+- [GitHub Actions deployment](../../.github/workflows/deploy-production.yml)
