@@ -1,0 +1,51 @@
+name: Renew production SSL certificates
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  renew:
+    name: Renew Let's Encrypt certificates
+    runs-on: self-hosted
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_URL }}
+
+    steps:
+      - name: Renew certificates and reload Nginx
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          command -v certbot >/dev/null 2>&1 || {
+            echo "certbot must be installed on the production host"
+            exit 1
+          }
+
+          sudo -n certbot renew \
+            --non-interactive \
+            --quiet \
+            --deploy-hook "systemctl reload nginx"
+
+      - name: Verify certificate expiry
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          certificate_dates="$(
+            echo | openssl s_client \
+              -servername atlante.atliteg.org \
+              -connect atlante.atliteg.org:443 \
+              2>/dev/null |
+              openssl x509 -noout -dates
+          )"
+
+          echo "$certificate_dates"
+          not_after="$(awk -F= '/^notAfter=/{print $2}' <<< "$certificate_dates")"
+          test -n "$not_after"
+          test "$(date -d "$not_after" +%s)" -gt "$(date +%s)"
