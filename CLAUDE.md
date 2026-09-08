@@ -61,6 +61,45 @@ Per cambiare il dominio utilizzato nei metadata SEO, modificare la variabile d'a
 NEXT_PUBLIC_SITE_URL=https://linguistica.dh.unica.it/atliteg
 ```
 
+### Terminazione TLS e certificati SSL
+
+**⚠️ I certificati SSL non sono gestiti in questo repository.** L'`nginx.conf`
+dell'app ascolta solo in HTTP: l'HTTPS e' terminato da un reverse proxy esterno,
+su un server distinto, che inoltra a questo container.
+
+| | |
+|---|---|
+| Proxy | `dhunica_proxypass` su `90.147.144.144` (`ssh dhwp@90.147.144.144`, serve la VPN) |
+| Repo del proxy | [caprowsky/proxy.dh.unica](https://github.com/caprowsky/proxy.dh.unica) - conf in `sites-enabled/atlante_atliteg.conf` |
+| Backend | Il proxy inoltra a `http://90.147.144.147:9000`, dove gira questo container |
+| `atlante.atliteg.org` | Certificato **Let's Encrypt** dedicato, rinnovato da certbot |
+| `linguistica.dh.unica.it` | Certificato **wildcard di ateneo** (GEANT/DigiCert), rinnovato manualmente dall'ateneo |
+
+Il dominio secondario non serve l'app: `linguistica.dh.unica.it/atliteg` fa un
+**301 permanente** verso `atlante.atliteg.org` (`rewrite ... permanent` nella
+conf del proxy). Le due varianti di dominio restano rilevanti per `metadataBase`,
+CORS e SEO, ma il traffico converge sul dominio primario.
+
+**Se il sito risulta con certificato scaduto, il problema non e' in questo
+repo**: nginx legge i certificati all'avvio e li tiene in memoria, quindi un
+certificato rinnovato regolarmente continua a non essere servito finche' il
+proxy non viene ricaricato. E' il guasto di settembre 2026. Diagnosi rapida:
+
+```bash
+# Cosa viene servito adesso
+echo | openssl s_client -servername atlante.atliteg.org \
+  -connect atlante.atliteg.org:443 2>/dev/null | openssl x509 -noout -dates
+
+# Cosa c'e' su disco sul proxy: se e' valido, manca solo il reload
+ssh dhwp@90.147.144.144 'docker exec dhunica_proxypass \
+  cat /etc/letsencrypt/live/atlante.atliteg.org/fullchain.pem' \
+  | openssl x509 -noout -dates
+```
+
+Procedura completa e rinnovo automatico: README e troubleshooting del repo del
+proxy. Rebuild o restart di **questo** container non risolvono un problema di
+certificato.
+
 ### Testing Remote Deployment
 
 Dopo il deploy, eseguire lo script di test per verificare l'accessibilità:
@@ -368,9 +407,13 @@ The project uses a self-hosted runner for automated deployment to production (be
 5. Verify deployment health
 
 **Setup Guides**:
-- [docs/guides/deploy-quickstart.md](docs/guides/deploy-quickstart.md) - Quick start
-- [docs/guides/github-actions.md](docs/guides/github-actions.md) - Full setup
-- [install-github-runner.sh](install-github-runner.sh) - Runner installation script
+- [docs/guides/github-actions.md](docs/guides/github-actions.md) - Full setup del self-hosted runner
+- [docs/guides/deployment-guide.md](docs/guides/deployment-guide.md) - Runbook di deploy
+- [docs/guides/github-actions-secrets.md](docs/guides/github-actions-secrets.md) - Secrets richiesti dal workflow
+
+⚠️ Il workflow scatta su **ogni** push a `master`, senza `paths-ignore`: anche un
+merge di sola documentazione fa partire rebuild e restart dei container in
+produzione.
 
 ### Remote Data Synchronization
 

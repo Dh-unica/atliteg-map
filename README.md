@@ -200,9 +200,9 @@ Il progetto utilizza un **GitHub Actions Self-Hosted Runner** per il deploy auto
 5. 🔍 Verifica deployment
 
 **Setup:**
-- 🚀 [docs/guides/deploy-quickstart.md](docs/guides/deploy-quickstart.md) - Guida rapida
-- 📖 [docs/guides/github-actions.md](docs/guides/github-actions.md) - Setup completo
-- ⚙️ [install-github-runner.sh](install-github-runner.sh) - Script installazione runner
+- 📖 [docs/guides/github-actions.md](docs/guides/github-actions.md) - Setup completo del self-hosted runner
+- 🚀 [docs/guides/deployment-guide.md](docs/guides/deployment-guide.md) - Runbook di deploy
+- 🔐 [docs/guides/github-actions-secrets.md](docs/guides/github-actions-secrets.md) - Secrets richiesti dal workflow
 - 📄 [.github/workflows/deploy-production.yml](.github/workflows/deploy-production.yml) - Workflow
 
 ```bash
@@ -329,7 +329,7 @@ Tutta la documentazione è organizzata in [`docs/`](docs/README.md):
 |---------|----------|-----------|
 | **Info** `[Non tecnico]` | Utenti, stakeholder | [START-HERE](docs/info/START-HERE.md) → [FAQ](docs/info/faq.md) |
 | **Architecture** `[Tecnico]` | Sviluppatori | [System Architecture](docs/architecture/system-architecture.md) |
-| **Guides** `[Tecnico]` | DevOps, Developers | [Quick Start](docs/guides/quick-start.md) → [Deployment](docs/guides/deployment-runbook.md) |
+| **Guides** `[Tecnico]` | DevOps, Developers | [Quick Start](docs/guides/quick-start.md) → [Deployment](docs/guides/deployment-guide.md) |
 | **Components** `[Tecnico]` | Frontend Engineers | [Lemmario Dashboard](docs/components/lemmario-dashboard.md) |
 | **Security** `[Tecnico]` | Security/DevOps | [Security Handbook](docs/security/security-handbook.md) |
 | **Project** `[Tecnico]` | Contributors | [Roadmap](docs/project/ROADMAP.md) → [Contributing](docs/project/CONTRIBUTING.md) |
@@ -354,7 +354,12 @@ Tutta la documentazione è organizzata in [`docs/`](docs/README.md):
 → [Data Operations Runbook](docs/guides/data-operations.md)
 
 **Come faccio il deploy?**  
-→ [Deployment Runbook](docs/guides/deployment-runbook.md)
+→ [Deployment Guide](docs/guides/deployment-guide.md)
+
+**Il sito dà errore di certificato SSL scaduto: devo rifare il deploy?**  
+→ No. L'HTTPS è terminato da un reverse proxy esterno, non da questa
+applicazione: un rebuild non cambia nulla. Vedi
+[Terminazione TLS e certificati](docs/guides/multi-domain-deployment.md#reverse-proxy-terminazione-tls)
 
 ---
 
