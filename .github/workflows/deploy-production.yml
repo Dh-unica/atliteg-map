@@ -152,6 +152,20 @@ jobs:
           ls -lh server/data/ || echo "(directory vuota o non esistente)"
 
 
+      - name: 🔐 Rinnova certificati SSL
+        run: |
+          set -euo pipefail
+
+          if ! command -v certbot >/dev/null 2>&1; then
+           echo "certbot è richiesto sul server di produzione"
+           exit 1
+          fi
+
+          sudo certbot renew \
+           --non-interactive \
+           --quiet \
+           --deploy-hook "systemctl reload nginx"
+
       - name: 🏗️ Build dell'applicazione
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
